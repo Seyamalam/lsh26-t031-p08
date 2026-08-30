@@ -1,6 +1,8 @@
 "use client"
 
-import { CheckCircle2Icon, EyeIcon } from "lucide-react"
+import * as React from "react"
+
+import { CheckCircle2Icon, DownloadIcon, EyeIcon } from "lucide-react"
 
 import { useFixture } from "@/components/fixture-provider"
 import { Badge } from "@/components/ui/badge"
@@ -23,6 +25,8 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { CheckingLists, ReviewEntry } from "@/src/domain/types"
+import { checkingListCsv, csvFilename } from "@/src/domain/csv"
+import { downloadCsv } from "@/lib/download"
 
 const tabs: { key: keyof CheckingLists; label: string; rule: string }[] = [
   {
@@ -120,18 +124,41 @@ function ReviewTable({
 }
 
 export function ChecksView() {
-  const { checking, openTrace } = useFixture()
+  const { checking, caseId, openTrace } = useFixture()
+  const [activeTab, setActiveTab] = React.useState<keyof CheckingLists>(
+    "optional"
+  )
+  const activeDefinition = tabs.find((tab) => tab.key === activeTab)!
+
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="font-heading text-2xl font-semibold tracking-tight">
-          Checking lists
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Manual verification before publication
-        </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="font-heading text-2xl font-semibold tracking-tight">
+            Checking lists
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Manual verification before publication
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() =>
+            downloadCsv(
+              csvFilename(caseId, `${activeTab} checks`),
+              checkingListCsv(checking[activeTab])
+            )
+          }
+        >
+          <DownloadIcon /> Export {activeDefinition.label} CSV
+        </Button>
       </div>
-      <Tabs defaultValue="optional">
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) =>
+          value && setActiveTab(value as keyof CheckingLists)
+        }
+      >
         <TabsList className="h-auto w-full justify-start overflow-x-auto sm:w-fit">
           {tabs.map((tab) => (
             <TabsTrigger key={tab.key} value={tab.key}>

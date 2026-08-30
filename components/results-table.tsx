@@ -7,6 +7,7 @@ import {
   ArrowUpIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  DownloadIcon,
   EyeIcon,
   SearchIcon,
 } from "lucide-react"
@@ -49,6 +50,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import type { StudentResult } from "@/src/domain/types"
+import { csvFilename, resultRegisterCsv } from "@/src/domain/csv"
+import { downloadCsv } from "@/lib/download"
 
 function SortButton({
   column,
@@ -82,7 +85,7 @@ function SortButton({
 }
 
 export function ResultsTable() {
-  const { results, classes, openTrace } = useFixture()
+  const { results, classes, caseId, openTrace } = useFixture()
   const [search, setSearch] = React.useState("")
   const [classFilter, setClassFilter] = React.useState("all")
   const [sorting, setSorting] = React.useState<SortingState>([
@@ -228,13 +231,26 @@ export function ResultsTable() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="font-heading text-2xl font-semibold tracking-tight">
-          Results
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Final GPA register and subject traces
-        </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="font-heading text-2xl font-semibold tracking-tight">
+            Results
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Final GPA register and subject traces
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() =>
+            downloadCsv(
+              csvFilename(caseId, "result register"),
+              resultRegisterCsv(results)
+            )
+          }
+        >
+          <DownloadIcon /> Export register CSV
+        </Button>
       </div>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <div className="relative sm:max-w-sm sm:flex-1">

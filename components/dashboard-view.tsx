@@ -3,7 +3,10 @@
 import Link from "next/link"
 import {
   ArrowRightIcon,
+  BookOpenCheckIcon,
   CircleAlertIcon,
+  EyeIcon,
+  FlaskConicalIcon,
   GraduationCapIcon,
   ListChecksIcon,
   ShieldCheckIcon,
@@ -12,7 +15,7 @@ import {
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 import { useFixture } from "@/components/fixture-provider"
-import { buttonVariants } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -27,6 +30,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import { cn } from "@/lib/utils"
+import { findJudgeExamples } from "@/src/domain/evidence"
 
 const gradeOrder = ["A+", "A", "A-", "B", "C", "D", "F"]
 const gradeConfig = {
@@ -38,13 +42,14 @@ const classConfig = {
 } satisfies ChartConfig
 
 export function DashboardView() {
-  const { results, checking } = useFixture()
+  const { results, checking, openTrace } = useFixture()
   const passed = results.filter((result) => result.letterGrade !== "F").length
   const failed = results.length - passed
   const reviewFlags =
     checking.optional.length +
     checking.practical.length +
     checking.absent.length
+  const judgeExamples = findJudgeExamples(results)
   const gradeData = gradeOrder.map((grade) => ({
     grade,
     count: results.filter((result) => result.letterGrade === grade).length,
@@ -92,6 +97,53 @@ export function DashboardView() {
       icon: ListChecksIcon,
     },
   ]
+  const judgeShortcuts = [
+    {
+      label: "Strong average, compulsory fail",
+      result: judgeExamples.compulsoryFail,
+      icon: CircleAlertIcon,
+      detail: (result: NonNullable<typeof judgeExamples.compulsoryFail>) => {
+        const failed = result.compulsoryFailures[0]
+        return `${result.uncancelledGpa.toFixed(2)} before override · ${failed.code} ${failed.rawDisplay}`
+      },
+    },
+    {
+      label: "Practical fail, theory pass",
+      result: judgeExamples.practicalFail,
+      icon: FlaskConicalIcon,
+      detail: (result: NonNullable<typeof judgeExamples.practicalFail>) => {
+        const failed = result.subjectResults.find(
+          (subject) =>
+            subject.isPractical &&
+            subject.theoryPassed === true &&
+            subject.practicalPassed === false
+        )!
+        return `${failed.code} · ${failed.rawDisplay}`
+      },
+    },
+    {
+      label: "Optional point at or below 2",
+      result: judgeExamples.optionalRule,
+      icon: BookOpenCheckIcon,
+      detail: (result: NonNullable<typeof judgeExamples.optionalRule>) => {
+        const optional = result.subjectResults.find(
+          (subject) => subject.isOptional
+        )!
+        return `${optional.code} · ${optional.point.toFixed(1)} GP · 0 bonus`
+      },
+    },
+    {
+      label: "Absent compulsory subject",
+      result: judgeExamples.absent,
+      icon: EyeIcon,
+      detail: (result: NonNullable<typeof judgeExamples.absent>) => {
+        const absent = result.subjectResults.find(
+          (subject) => subject.absent && !subject.isOptional
+        ) ?? result.subjectResults.find((subject) => subject.absent)!
+        return `${absent.code} · AB · ${absent.isOptional ? "optional" : "compulsory"}`
+      },
+    },
+  ]
 
   return (
     <div className="space-y-5">
@@ -123,6 +175,63 @@ export function DashboardView() {
             </CardContent>
           </Card>
         ))}
+      </section>
+
+      <section aria-labelledby="judge-shortcuts-title">
+        <div className="mb-3 flex items-end justify-between gap-4">
+          <div>
+            <h2
+              id="judge-shortcuts-title"
+              className="font-heading text-lg font-semibold"
+            >
+              Judge shortcuts
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Open a published hard-edge trace in one click
+            </p>
+          </div>
+          <span className="hidden font-mono text-xs text-muted-foreground sm:block">
+            Current case
+          </span>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {judgeShortcuts.map((shortcut) => {
+            const result = shortcut.result
+            return (
+              <Card key={shortcut.label} className="gap-3 py-4">
+                <CardHeader className="gap-2 px-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <CardTitle className="text-sm leading-snug">
+                      {shortcut.label}
+                    </CardTitle>
+                    <shortcut.icon className="size-4 shrink-0 text-muted-foreground" />
+                  </div>
+                  {result ? (
+                    <CardDescription className="min-h-10">
+                      <span className="block font-medium text-foreground">
+                        {result.student.name}
+                      </span>
+                      {shortcut.detail(result)}
+                    </CardDescription>
+                  ) : (
+                    <CardDescription>No matching student</CardDescription>
+                  )}
+                </CardHeader>
+                <CardContent className="px-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    disabled={!result}
+                    onClick={() => result && openTrace(result)}
+                  >
+                    <EyeIcon /> Open trace
+                  </Button>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
       </section>
 
       <section className="grid gap-4 xl:grid-cols-2">
