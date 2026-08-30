@@ -6,9 +6,11 @@ import type {
   Subject,
 } from "../domain/types"
 import publishedFixture from "./P08_school_results_public.json"
+import { sha256Fingerprint } from "../storage/workspace"
 
 export const bundledFixture = publishedFixture as unknown as Fixture
 export const MAX_FIXTURE_BYTES = 5 * 1024 * 1024
+export const WORKER_PARSE_THRESHOLD = 250 * 1024
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value)
@@ -213,5 +215,41 @@ export async function loadFixtureFile(file: {
       throw new Error("Select a JSON fixture file. ZIP and other formats are not supported.")
     }
   }
-  return parseFixture(await file.text())
+  return (await readFixtureFile(file)).fixture
+}
+
+function parseInWorker(rawJson: string) {
+  return new Promise<Fixture>((resolve, reject) => {
+    const worker = new Worker(new URL("./fixture-worker.ts", import.meta.url), { type: "module" })
+    worker.onmessage = (event: MessageEvent<{ fixture?: Fixture; error?: string }>) => {
+      worker.terminate()
+      if (event.data.fixture) resolve(event.data.fixture)
+      else reject(new Error(event.data.error ?? "Worker validation failed."))
+    }
+    worker.onerror = () => {
+      worker.terminate()
+      reject(new Error("Worker validation failed."))
+    }
+    worker.postMessage(rawJson)
+  })
+}
+
+export async function readFixtureFile(file: {
+  size: number
+  name?: string
+  type?: string
+  text: () => Promise<string>
+}) {
+  if (file.size > MAX_FIXTURE_BYTES) throw new Error("Fixture files must be 5 MiB or smaller.")
+  if (file.name) {
+    const jsonExtension = file.name.toLowerCase().endsWith(".json")
+    const jsonMime = file.type === "application/json"
+    if (!jsonExtension && !jsonMime) throw new Error("Select a JSON fixture file. ZIP and other formats are not supported.")
+  }
+  const rawJson = await file.text()
+  const fixture = file.size > WORKER_PARSE_THRESHOLD && typeof Worker !== "undefined"
+    ? await parseInWorker(rawJson)
+    : parseFixture(rawJson)
+  const fingerprint = await sha256Fingerprint(rawJson)
+  return { rawJson, fixture, fingerprint, byteSize: file.size }
 }
