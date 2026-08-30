@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 
-import { parseFixture } from "./fixture"
+import { parseFixture } from "./fixture-validation"
 
 self.onmessage = (event: MessageEvent<string>) => {
   try {

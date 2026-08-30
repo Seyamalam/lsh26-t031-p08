@@ -14,6 +14,7 @@ import {
   ScanSearchIcon,
   ShieldCheckIcon,
   CheckCircle2Icon,
+  DatabaseIcon,
 } from "lucide-react"
 
 import { FixtureUploadSheet } from "@/components/fixture-upload-sheet"
@@ -55,6 +56,7 @@ const navigation = [
   { href: "/publication", label: "Publication", icon: ShieldCheckIcon },
   { href: "/corrections", label: "Corrections", icon: HistoryIcon },
   { href: "/anomalies", label: "Anomalies", icon: ScanSearchIcon },
+  { href: "/datasets", label: "Datasets", icon: DatabaseIcon },
 ]
 const pageLabels: Record<string, string> = {
   "/dashboard": "Dashboard",
@@ -63,21 +65,28 @@ const pageLabels: Record<string, string> = {
   "/publication": "Publication control",
   "/corrections": "Corrections and report cards",
   "/anomalies": "Cohort anomalies",
+  "/datasets": "Datasets",
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const {
     fixture,
+    datasetId,
+    datasetName,
+    savedDatasets,
     caseId,
     currentCase,
     results,
     checking,
     uploadError,
     uploadNotice,
+    storageError,
+    isLoading,
     fixtureRevision,
     publication,
     setCaseId,
+    openDataset,
     resetFixture,
   } = useFixture()
   const reviewCount =
@@ -147,6 +156,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <SidebarGroupLabel>Case status</SidebarGroupLabel>
             <SidebarGroupContent className="space-y-2 rounded-lg border border-sidebar-border/70 p-3 text-xs">
               <div className="flex items-center justify-between">
+                <span className="text-sidebar-foreground/65">Dataset</span>
+                <span className="max-w-28 truncate" title={datasetName}>{datasetName}</span>
+              </div>
+              <div className="flex items-center justify-between">
                 <span className="text-sidebar-foreground/65">Case</span>
                 <span className="font-mono">{caseId}</span>
               </div>
@@ -181,9 +194,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {currentCase.subjects.length} subjects
             </p>
           </div>
+          <select
+            aria-label="Dataset"
+            value={datasetId}
+            onChange={(event) => void openDataset(event.target.value)}
+            disabled={isLoading}
+            className="hidden h-9 max-w-48 rounded-md border bg-background px-2 text-sm sm:block"
+          >
+            <optgroup label="Bundled data"><option value="bundled">Bundled data</option></optgroup>
+            {datasetId.startsWith("session:") && <optgroup label="Session"><option value={datasetId}>{datasetName}</option></optgroup>}
+            <optgroup label="Saved imports">{savedDatasets.length ? savedDatasets.map((item) => <option key={item.id} value={item.id}>{item.name}</option>) : <option disabled>No saved imports</option>}</optgroup>
+          </select>
           <Select
             value={caseId}
-            onValueChange={(value) => value && setCaseId(value)}
+            onValueChange={(value) => { if (value) void setCaseId(value) }}
             items={fixture.cases.map((item) => ({
               value: item.case_id,
               label: item.case_id,
@@ -209,7 +233,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             variant="ghost"
             size="icon"
             onClick={resetFixture}
-            aria-label="Reset bundled fixture"
+            aria-label="Open bundled data"
           >
             <RotateCcwIcon />
           </Button>
@@ -231,6 +255,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <CheckCircle2Icon />
               <AlertTitle>Fixture loaded</AlertTitle>
               <AlertDescription>{uploadNotice}</AlertDescription>
+            </Alert>
+          </div>
+        )}
+        {storageError && (
+          <div className="px-4 pt-4 md:px-6">
+            <Alert variant="destructive">
+              <DatabaseIcon />
+              <AlertTitle>Device storage unavailable</AlertTitle>
+              <AlertDescription>{storageError}</AlertDescription>
             </Alert>
           </div>
         )}
