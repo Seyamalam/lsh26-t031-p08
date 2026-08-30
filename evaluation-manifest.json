@@ -2,7 +2,7 @@
   "team_id": "LSH26-T031",
   "problem_id": "P08",
   "repository_name": "lsh26-t031-p08",
-  "live_url": "",
+  "live_url": "https://lsh26-t031-p08.vercel.app",
   "demo_video_url_optional": "",
   "event_start_code": "LSH26-8490-C900",
   "repository_created_before_release": false,
@@ -16,19 +16,19 @@
   "requirements": {
     "R1": {
       "status": "complete",
-      "evidence": "Audit desk summary; Result register; case selector; upload/reset controls; src/data/P08_school_results_public.json; src/data/fixture.ts"
+      "evidence": "/dashboard metrics and charts; /results register; shared case selector and upload/reset controls; src/data/P08_school_results_public.json; src/data/fixture.ts"
     },
     "R2": {
       "status": "complete",
-      "evidence": "Result register; src/domain/engine.ts; src/domain/engine.test.ts"
+      "evidence": "/results sortable and searchable register; src/domain/engine.ts; src/domain/engine.test.ts"
     },
     "R3": {
       "status": "complete",
-      "evidence": "Select any student in Result register or Checking lists; components/results-workspace.tsx TraceSheet; docs/screenshots/calculation-trace.png"
+      "evidence": "Select Trace from /results or /checks; components/student-trace.tsx shows every mark, grade point, decision rule, GPA formula, uncancelled GPA and compulsory-fail override"
     },
     "R4": {
       "status": "complete",
-      "evidence": "Checking lists tab; src/domain/engine.ts buildCheckingLists; overlap test in src/domain/engine.test.ts"
+      "evidence": "/checks three tabbed tables; src/domain/engine.ts buildCheckingLists; overlap test in src/domain/engine.test.ts"
     }
   },
   "team_members": [
@@ -39,7 +39,7 @@
       "evidence_paths_or_commits": [
         "src/domain/",
         "src/data/",
-        "components/results-workspace.tsx",
+        "components/",
         "app/",
         "repository commit history"
       ]
@@ -55,7 +55,7 @@
   "known_limitations": [
     "The evaluator accepts complete fixture JSON rather than supporting per-mark editing.",
     "Uploaded fixture state and filters reset on page refresh.",
-    "Live deployment URL is pending and must be filled before the Final Submission Form."
+    "Fixture, selected case and table filter state reset on a browser refresh."
   ],
   "ai_tools_used": [
     {
