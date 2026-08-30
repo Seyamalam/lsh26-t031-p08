@@ -1,23 +1,22 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  ClipboardCheckIcon,
   FileJsonIcon,
   GaugeIcon,
   GraduationCapIcon,
   ListChecksIcon,
   RotateCcwIcon,
-  UploadIcon,
 } from "lucide-react"
 
+import { FixtureUploadSheet } from "@/components/fixture-upload-sheet"
 import { useFixture } from "@/components/fixture-provider"
 import { StudentTrace } from "@/components/student-trace"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -32,7 +31,6 @@ import {
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -59,7 +57,6 @@ const pageLabels: Record<string, string> = {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const fileRef = React.useRef<HTMLInputElement>(null)
   const {
     fixture,
     caseId,
@@ -67,9 +64,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     results,
     checking,
     uploadError,
-    isLoading,
     setCaseId,
-    loadFixture,
     resetFixture,
   } = useFixture()
   const reviewCount =
@@ -78,7 +73,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     checking.absent.length
 
   return (
-    <SidebarProvider>
+    <SidebarProvider
+      style={
+        {
+          "--shell-header-height": "3.5rem",
+          "--shell-header-border": "var(--border)",
+        } as React.CSSProperties
+      }
+    >
       <a
         href="#main-content"
         className="fixed -top-16 left-4 z-[100] rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground focus:top-4"
@@ -86,14 +88,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         Skip to content
       </a>
       <Sidebar collapsible="icon">
-        <SidebarHeader className="border-b p-3">
+        <SidebarHeader className="h-(--shell-header-height) shrink-0 justify-center border-b border-[color:var(--shell-header-border)] px-3 py-0">
           <Link
             href="/dashboard"
+            prefetch
             className="flex items-center gap-2 overflow-hidden rounded-md focus-visible:outline-2 focus-visible:outline-ring"
           >
-            <span className="grid size-8 shrink-0 place-items-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
-              <ClipboardCheckIcon className="size-4" />
-            </span>
+            <Image
+              src="/brand-mark.png"
+              alt=""
+              width={32}
+              height={32}
+              priority
+              className="size-8 shrink-0 rounded-md object-cover"
+            />
             <span className="min-w-0 group-data-[collapsible=icon]:hidden">
               <strong className="block truncate text-sm">Result Office</strong>
               <span className="block text-[11px] text-sidebar-foreground/65">
@@ -110,7 +118,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 {navigation.map((item) => (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
-                      render={<Link href={item.href} />}
+                      render={<Link href={item.href} prefetch />}
                       isActive={pathname === item.href}
                       tooltip={item.label}
                     >
@@ -140,17 +148,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
-        <SidebarFooter className="border-t p-3 group-data-[collapsible=icon]:hidden">
-          <p className="flex items-center gap-2 text-xs text-sidebar-foreground/65">
-            <FileJsonIcon className="size-3.5" /> {fixture.cases.length} fixture
-            cases
-          </p>
-        </SidebarFooter>
         <SidebarRail />
       </Sidebar>
 
       <SidebarInset className="min-w-0">
-        <header className="sticky top-0 z-30 flex min-h-14 flex-wrap items-center gap-2 border-b bg-background/95 px-3 py-2 backdrop-blur md:px-5">
+        <header className="sticky top-0 z-30 flex h-(--shell-header-height) shrink-0 flex-nowrap items-center gap-2 border-b border-[color:var(--shell-header-border)] bg-background/95 px-3 py-0 backdrop-blur md:px-5">
           <SidebarTrigger />
           <Separator orientation="vertical" className="mr-1 h-5" />
           <div className="mr-auto min-w-24">
@@ -184,29 +186,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </SelectGroup>
             </SelectContent>
           </Select>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="application/json,.json"
-            className="sr-only"
-            aria-label="Upload P08 JSON fixture"
-            onChange={async (event) => {
-              const file = event.target.files?.[0]
-              if (file) await loadFixture(file)
-              event.target.value = ""
-            }}
-          />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => fileRef.current?.click()}
-            disabled={isLoading}
-          >
-            <UploadIcon />
-            <span className="hidden sm:inline">
-              {isLoading ? "Loading…" : "Load JSON"}
-            </span>
-          </Button>
+          <FixtureUploadSheet />
           <Button
             type="button"
             variant="ghost"
@@ -231,9 +211,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <main id="main-content" className="min-w-0 flex-1 p-4 md:p-6">
           {children}
         </main>
-        <footer className="flex items-center justify-between border-t px-4 py-3 text-xs text-muted-foreground md:px-6">
+        <footer className="border-t px-4 py-3 text-xs text-muted-foreground md:px-6">
           <span>Rules R-10 · R-11 · R-12 · R-13 · R-29</span>
-          <Badge variant="outline">Local processing</Badge>
         </footer>
       </SidebarInset>
       <StudentTrace />

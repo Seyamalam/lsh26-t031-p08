@@ -22,7 +22,9 @@ type FixtureContextValue = {
   isLoading: boolean
   selectedResult: StudentResult | null
   setCaseId: (caseId: string) => void
-  loadFixture: (file: File) => Promise<void>
+  loadFixture: (
+    file: File
+  ) => Promise<{ ok: true } | { ok: false; error: string }>
   resetFixture: () => void
   openTrace: (result: StudentResult) => void
   closeTrace: () => void
@@ -68,10 +70,12 @@ export function FixtureProvider({ children }: { children: React.ReactNode }) {
       setFixture(nextFixture)
       setCaseIdState(nextFixture.cases[0].case_id)
       setSelectedResult(null)
+      return { ok: true as const }
     } catch (error) {
-      setUploadError(
+      const message =
         error instanceof Error ? error.message : "Could not load this fixture."
-      )
+      setUploadError(message)
+      return { ok: false as const, error: message }
     } finally {
       setIsLoading(false)
     }

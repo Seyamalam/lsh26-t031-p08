@@ -12,7 +12,7 @@ import {
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 import { useFixture } from "@/components/fixture-provider"
-import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -26,6 +26,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { cn } from "@/lib/utils"
 
 const gradeOrder = ["A+", "A", "A-", "B", "C", "D", "F"]
 const gradeConfig = {
@@ -228,21 +229,21 @@ export function DashboardView() {
               <CardDescription>{detail}</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button
-                variant="ghost"
-                className="-ml-2"
-                render={<Link href="/checks" />}
+              <Link
+                href="/checks"
+                prefetch
+                className={cn(buttonVariants({ variant: "ghost" }), "-ml-2")}
               >
                 Open list <ArrowRightIcon />
-              </Button>
+              </Link>
             </CardContent>
           </Card>
         ))}
       </section>
       <div className="flex justify-end">
-        <Button render={<Link href="/results" />}>
+        <Link href="/results" prefetch className={buttonVariants()}>
           <GraduationCapIcon /> Open results
-        </Button>
+        </Link>
       </div>
     </div>
   )
