@@ -1,0 +1,69 @@
+{
+  "team_id": "LSH26-T031",
+  "problem_id": "P08",
+  "repository_name": "lsh26-t031-p08",
+  "live_url": "",
+  "demo_video_url_optional": "",
+  "event_start_code": "LSH26-8490-C900",
+  "repository_created_before_release": false,
+  "pre_event_materials": [],
+  "sample_data": {
+    "loads_published_fixture": true,
+    "method": "Bundled organizer fixture plus in-browser JSON file upload using the published schema 2.2 shape",
+    "reset_instructions": "Select Reset in the header to restore the bundled 25-case fixture and PUB-01."
+  },
+  "problem_solving_method": "A pure TypeScript engine evaluates subject component passes, grade bands, optional bonus, compulsory-fail override, final GPA and checking flags. The Next.js interface derives the register, per-student audit trace and three non-exclusive checking queues from the same evaluated result objects. Boundary, overlap, upload and all-public-fixture behavior is automated-tested.",
+  "requirements": {
+    "R1": {
+      "status": "complete",
+      "evidence": "Audit desk summary; Result register; case selector; upload/reset controls; src/data/P08_school_results_public.json; src/data/fixture.ts"
+    },
+    "R2": {
+      "status": "complete",
+      "evidence": "Result register; src/domain/engine.ts; src/domain/engine.test.ts"
+    },
+    "R3": {
+      "status": "complete",
+      "evidence": "Select any student in Result register or Checking lists; components/results-workspace.tsx TraceSheet; docs/screenshots/calculation-trace.png"
+    },
+    "R4": {
+      "status": "complete",
+      "evidence": "Checking lists tab; src/domain/engine.ts buildCheckingLists; overlap test in src/domain/engine.test.ts"
+    }
+  },
+  "team_members": [
+    {
+      "registered_name": "Touhidul Alam Seyam",
+      "github_username": "Seyamalam",
+      "major_contribution": "Sole participant: domain modeling, fixture integration, result engine, tests, Next.js/shadcn interface, accessibility, documentation and verification.",
+      "evidence_paths_or_commits": [
+        "src/domain/",
+        "src/data/",
+        "components/results-workspace.tsx",
+        "app/",
+        "repository commit history"
+      ]
+    }
+  ],
+  "major_design_decisions": [
+    "Evaluate every rule in a pure domain module independent of React so the official edge cases are directly testable.",
+    "Check theory and practical component passes before grade-band lookup, preventing a high total from masking a component failure.",
+    "Preserve the uncancelled GPA and exact failing-subject decisions when the compulsory-fail override publishes 0.00/F.",
+    "Derive all three non-exclusive teacher queues from the same evaluated result model used by the register and trace.",
+    "Bundle the organizer fixture and validate judge-supplied JSON locally so evaluation requires no secret or external service."
+  ],
+  "known_limitations": [
+    "The evaluator accepts complete fixture JSON rather than supporting per-mark editing.",
+    "Uploaded fixture state and filters reset on page refresh.",
+    "Live deployment URL is pending and must be filled before the Final Submission Form."
+  ],
+  "ai_tools_used": [
+    {
+      "tool": "OpenAI Codex",
+      "used_for": "Implementation assistance, test drafting, interface composition and documentation.",
+      "how_output_was_verified": "Checked against the official clarifications with 35 automated tests, all 25 public cases, TypeScript, ESLint, a production Next.js build and browser QA."
+    }
+  ],
+  "licenses_file": "LICENSES.md",
+  "declaration": "The information above is complete and truthful to the best of the team's knowledge."
+}
