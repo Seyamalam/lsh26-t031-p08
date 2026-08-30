@@ -33,12 +33,17 @@ export function FixtureUploadSheet() {
     if (!item || !file) return
 
     const outcome = await loadFixture(file)
+    if (outcome.ok) {
+      setItems([])
+      setOpen(false)
+      return
+    }
     setItems([
       {
         ...item,
         progress: 100,
-        status: outcome.ok ? "success" : "error",
-        error: outcome.ok ? undefined : outcome.error,
+        status: "error",
+        error: outcome.error,
       },
     ])
   }
