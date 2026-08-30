@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import { Bricolage_Grotesque, Public_Sans } from "next/font/google"
 
 import "./globals.css"
+import { ThemeProvider } from "@/components/theme-provider"
+import { TooltipProvider } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
 const publicSans = Public_Sans({
@@ -24,15 +26,17 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
           "min-h-svh bg-background font-sans text-foreground antialiased",
           publicSans.variable,
-          bricolage.variable,
+          bricolage.variable
         )}
       >
-        {children}
+        <ThemeProvider>
+          <TooltipProvider>{children}</TooltipProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

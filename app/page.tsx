@@ -1,5 +1,5 @@
-import { ResultsWorkspace } from "@/components/results-workspace"
+import { redirect } from "next/navigation"
 
 export default function Page() {
-  return <ResultsWorkspace />
+  redirect("/dashboard")
 }

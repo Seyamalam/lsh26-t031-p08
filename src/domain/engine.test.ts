@@ -53,12 +53,12 @@ describe("subject evaluation", () => {
     const theoryFail = evaluateSubject(
       practicalSubject,
       { theory: 24, practical: 25 },
-      false,
+      false
     )
     const practicalFail = evaluateSubject(
       practicalSubject,
       { theory: 73, practical: 7 },
-      false,
+      false
     )
     expect(theoryFail.point).toBe(0)
     expect(theoryFail.theoryPassed).toBe(false)
@@ -85,7 +85,10 @@ describe("GPA evaluation", () => {
   ]
   const compulsory = ["A", "B", "C", "D", "E", "F"]
 
-  function studentWith(optionalMark: number | "AB", compulsoryMarks = [80, 80, 80, 80, 80, 80]): Student {
+  function studentWith(
+    optionalMark: number | "AB",
+    compulsoryMarks = [80, 80, 80, 80, 80, 80]
+  ): Student {
     return {
       id: "S001",
       name: "Boundary Student",
@@ -110,23 +113,29 @@ describe("GPA evaluation", () => {
     [50, 1],
     [80, 3],
   ])("turns optional mark %s into bonus %s", (mark, expectedBonus) => {
-    expect(evaluateStudent(studentWith(mark), subjects, compulsory).optionalBonus).toBe(expectedBonus)
+    expect(
+      evaluateStudent(studentWith(mark), subjects, compulsory).optionalBonus
+    ).toBe(expectedBonus)
   })
 
   it("caps GPA at 5.00", () => {
-    expect(evaluateStudent(studentWith(80), subjects, compulsory).finalGpa).toBe(5)
+    expect(
+      evaluateStudent(studentWith(80), subjects, compulsory).finalGpa
+    ).toBe(5)
   })
 
   it("keeps the uncancelled average but overrides a compulsory failure", () => {
     const result = evaluateStudent(
       studentWith(80, [32, 80, 80, 80, 80, 80]),
       subjects,
-      compulsory,
+      compulsory
     )
     expect(result.uncancelledGpa).toBeGreaterThan(4)
     expect(result.finalGpa).toBe(0)
     expect(result.letterGrade).toBe("F")
-    expect(result.compulsoryFailures.map((failure) => failure.code)).toEqual(["A"])
+    expect(result.compulsoryFailures.map((failure) => failure.code)).toEqual([
+      "A",
+    ])
   })
 
   it("does not let optional AB fail the student", () => {
@@ -175,7 +184,14 @@ describe("checking lists", () => {
         OPT: 40,
       },
     }
-    const result = evaluateStudent(student, subjects, ["A", "B", "C", "D", "E", "F"])
+    const result = evaluateStudent(student, subjects, [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+    ])
     const lists = buildCheckingLists([result])
     expect(lists.optional).toHaveLength(1)
     expect(lists.practical).toHaveLength(1)

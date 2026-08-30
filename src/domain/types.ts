@@ -1,6 +1,6 @@
 export type WholeMark = number
 export type PracticalMark = { theory: number; practical: number }
-export type Mark = WholeMark | PracticalMark | 'AB'
+export type Mark = WholeMark | PracticalMark | "AB"
 
 export type Subject = {
   code: string
@@ -25,7 +25,7 @@ export type FixtureCase = {
 
 export type Fixture = {
   schema_version: string
-  problem_id: 'P08'
+  problem_id: "P08"
   format_note?: string
   cases: FixtureCase[]
 }
