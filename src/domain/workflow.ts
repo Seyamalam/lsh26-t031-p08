@@ -51,6 +51,20 @@ export function createPublicationState(checking: CheckingLists): PublicationStat
   }
 }
 
+export function reconcilePublicationState(
+  state: PublicationState,
+  checking: CheckingLists
+): PublicationState {
+  const previous = new Map(state.reviewItems.map((item) => [item.id, item]))
+  return {
+    ...state,
+    reviewItems: buildReviewQueue(checking).map((item) => {
+      const saved = previous.get(item.id)
+      return saved ? { ...item, status: saved.status, note: saved.note } : item
+    }),
+  }
+}
+
 export function resolveReviewItem(
   state: PublicationState,
   id: string,

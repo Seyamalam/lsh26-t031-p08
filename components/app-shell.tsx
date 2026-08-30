@@ -8,8 +8,11 @@ import {
   FileJsonIcon,
   GaugeIcon,
   GraduationCapIcon,
+  HistoryIcon,
   ListChecksIcon,
   RotateCcwIcon,
+  ScanSearchIcon,
+  ShieldCheckIcon,
 } from "lucide-react"
 
 import { FixtureUploadSheet } from "@/components/fixture-upload-sheet"
@@ -48,11 +51,17 @@ const navigation = [
   { href: "/dashboard", label: "Dashboard", icon: GaugeIcon },
   { href: "/results", label: "Results", icon: GraduationCapIcon },
   { href: "/checks", label: "Checks", icon: ListChecksIcon },
+  { href: "/publication", label: "Publication", icon: ShieldCheckIcon },
+  { href: "/corrections", label: "Corrections", icon: HistoryIcon },
+  { href: "/anomalies", label: "Anomalies", icon: ScanSearchIcon },
 ]
 const pageLabels: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/results": "Results",
   "/checks": "Checking lists",
+  "/publication": "Publication control",
+  "/corrections": "Corrections and report cards",
+  "/anomalies": "Cohort anomalies",
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -64,6 +73,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     results,
     checking,
     uploadError,
+    publication,
     setCaseId,
     resetFixture,
   } = useFixture()
@@ -144,6 +154,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <div className="flex items-center justify-between">
                 <span className="text-sidebar-foreground/65">Review flags</span>
                 <span className="font-mono">{reviewCount}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sidebar-foreground/65">Publication</span>
+                <span className="capitalize">{publication.stage}</span>
               </div>
             </SidebarGroupContent>
           </SidebarGroup>

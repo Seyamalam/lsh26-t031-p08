@@ -199,10 +199,19 @@ export function parseFixture(input: string): Fixture {
 
 export async function loadFixtureFile(file: {
   size: number
+  name?: string
+  type?: string
   text: () => Promise<string>
 }): Promise<Fixture> {
   if (file.size > MAX_FIXTURE_BYTES) {
     throw new Error("Fixture files must be 5 MiB or smaller.")
+  }
+  if (file.name) {
+    const jsonExtension = file.name.toLowerCase().endsWith(".json")
+    const jsonMime = file.type === "application/json"
+    if (!jsonExtension && !jsonMime) {
+      throw new Error("Select a JSON fixture file. ZIP and other formats are not supported.")
+    }
   }
   return parseFixture(await file.text())
 }

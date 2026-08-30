@@ -67,6 +67,18 @@ export function buildCorrection(
   if (!(input.subjectCode in student.marks)) {
     throw new Error(`${input.studentId} has no mark for ${input.subjectCode}.`)
   }
+  const subject = effective.subjects.find((item) => item.code === input.subjectCode)!
+  if (input.after !== "AB") {
+    if (subject.practical) {
+      if (
+        typeof input.after === "number" ||
+        !Number.isInteger(input.after.theory) || input.after.theory < 0 || input.after.theory > 75 ||
+        !Number.isInteger(input.after.practical) || input.after.practical < 0 || input.after.practical > 25
+      ) throw new Error(`${subject.code} needs integer theory 0 to 75 and practical 0 to 25.`)
+    } else if (typeof input.after !== "number" || !Number.isInteger(input.after) || input.after < 0 || input.after > 100) {
+      throw new Error(`${subject.code} needs an integer mark from 0 to 100.`)
+    }
+  }
   if (!input.reason.trim()) throw new Error("A correction reason is required.")
   return {
     ...input,

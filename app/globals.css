@@ -151,4 +151,19 @@
   body {
     background: white;
   }
+  body:has([data-report-card]) * {
+    visibility: hidden;
+  }
+  [data-report-card],
+  [data-report-card] * {
+    visibility: visible !important;
+  }
+  [data-report-card] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    border: 0;
+    box-shadow: none;
+    color: black;
+  }
 }

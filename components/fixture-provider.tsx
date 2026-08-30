@@ -2,8 +2,25 @@
 
 import * as React from "react"
 
-import { bundledFixture, parseFixture } from "@/src/data/fixture"
+import { bundledFixture, loadFixtureFile } from "@/src/data/fixture"
+import {
+  applyCorrections,
+  buildCorrection,
+  calculateCorrectionImpact,
+  type Correction,
+  type CorrectionImpact,
+  type CorrectionInput,
+} from "@/src/domain/corrections"
 import { buildCheckingLists, evaluateCase } from "@/src/domain/engine"
+import {
+  createPublicationState,
+  reconcilePublicationState,
+  resolveReviewItem,
+  transitionPublication,
+  type PublicationStage,
+  type PublicationState,
+  type ResolutionStatus,
+} from "@/src/domain/workflow"
 import type {
   CheckingLists,
   Fixture,
@@ -21,6 +38,11 @@ type FixtureContextValue = {
   uploadError: string
   isLoading: boolean
   selectedResult: StudentResult | null
+  sourceCase: FixtureCase
+  fixtureRevision: number
+  publication: PublicationState
+  corrections: Correction[]
+  correctionImpacts: CorrectionImpact[]
   setCaseId: (caseId: string) => void
   loadFixture: (
     file: File
@@ -28,9 +50,14 @@ type FixtureContextValue = {
   resetFixture: () => void
   openTrace: (result: StudentResult) => void
   closeTrace: () => void
+  setReviewResolution: (id: string, status: ResolutionStatus, note: string) => void
+  advancePublication: (target: PublicationStage) => { ok: true } | { ok: false; reason: string }
+  addCorrection: (input: Omit<CorrectionInput, "id" | "createdAt">) => Correction
+  clearCorrections: () => void
 }
 
 const FixtureContext = React.createContext<FixtureContextValue | null>(null)
+const OFFICE_STORAGE_KEY = "p08-office-state-v1"
 
 export function FixtureProvider({ children }: { children: React.ReactNode }) {
   const [fixture, setFixture] = React.useState<Fixture>(bundledFixture)
@@ -41,11 +68,48 @@ export function FixtureProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = React.useState(false)
   const [selectedResult, setSelectedResult] =
     React.useState<StudentResult | null>(null)
+  const [fixtureRevision, setFixtureRevision] = React.useState(0)
+  const [correctionsByCase, setCorrectionsByCase] = React.useState<Record<string, Correction[]>>({})
+  const [publicationByCase, setPublicationByCase] = React.useState<Record<string, PublicationState>>({})
+  const requestId = React.useRef(0)
 
-  const currentCase = React.useMemo(
+  React.useEffect(() => {
+    const timer = window.setTimeout(() => {
+    try {
+      const saved = localStorage.getItem(OFFICE_STORAGE_KEY)
+      if (!saved) return
+      const parsed = JSON.parse(saved) as {
+        correctionsByCase?: Record<string, Correction[]>
+        publicationByCase?: Record<string, PublicationState>
+      }
+      setCorrectionsByCase(parsed.correctionsByCase ?? {})
+      setPublicationByCase(parsed.publicationByCase ?? {})
+    } catch {
+      localStorage.removeItem(OFFICE_STORAGE_KEY)
+    }
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [])
+
+  React.useEffect(() => {
+    localStorage.setItem(
+      OFFICE_STORAGE_KEY,
+      JSON.stringify({ correctionsByCase, publicationByCase })
+    )
+  }, [correctionsByCase, publicationByCase])
+
+  const sourceCase = React.useMemo(
     () =>
       fixture.cases.find((item) => item.case_id === caseId) ?? fixture.cases[0],
     [caseId, fixture]
+  )
+  const corrections = React.useMemo(
+    () => correctionsByCase[caseId] ?? [],
+    [caseId, correctionsByCase]
+  )
+  const currentCase = React.useMemo(
+    () => applyCorrections(sourceCase, corrections),
+    [corrections, sourceCase]
   )
   const results = React.useMemo(() => evaluateCase(currentCase), [currentCase])
   const checking = React.useMemo(() => buildCheckingLists(results), [results])
@@ -53,6 +117,19 @@ export function FixtureProvider({ children }: { children: React.ReactNode }) {
     () =>
       Array.from(new Set(results.map((result) => result.student.class))).sort(),
     [results]
+  )
+  const publication = React.useMemo(
+    () => reconcilePublicationState(
+      publicationByCase[caseId] ?? createPublicationState(checking),
+      checking
+    ),
+    [caseId, checking, publicationByCase]
+  )
+  const correctionImpacts = React.useMemo(
+    () => corrections.map((correction, index) =>
+      calculateCorrectionImpact(sourceCase, corrections.slice(0, index), correction)
+    ),
+    [corrections, sourceCase]
   )
 
   function setCaseId(nextCaseId: string) {
@@ -63,13 +140,21 @@ export function FixtureProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function loadFixture(file: File) {
+    const thisRequest = ++requestId.current
     setIsLoading(true)
     setUploadError("")
     try {
-      const nextFixture = parseFixture(await file.text())
+      const nextFixture = await loadFixtureFile(file)
+      if (thisRequest !== requestId.current) {
+        return { ok: false as const, error: "A newer fixture action replaced this load." }
+      }
       setFixture(nextFixture)
       setCaseIdState(nextFixture.cases[0].case_id)
       setSelectedResult(null)
+      setCorrectionsByCase({})
+      setPublicationByCase({})
+      localStorage.removeItem(OFFICE_STORAGE_KEY)
+      setFixtureRevision((value) => value + 1)
       return { ok: true as const }
     } catch (error) {
       const message =
@@ -77,15 +162,52 @@ export function FixtureProvider({ children }: { children: React.ReactNode }) {
       setUploadError(message)
       return { ok: false as const, error: message }
     } finally {
-      setIsLoading(false)
+      if (thisRequest === requestId.current) setIsLoading(false)
     }
   }
 
   function resetFixture() {
+    requestId.current += 1
     setFixture(bundledFixture)
     setCaseIdState(bundledFixture.cases[0].case_id)
     setUploadError("")
     setSelectedResult(null)
+    setIsLoading(false)
+    setCorrectionsByCase({})
+    setPublicationByCase({})
+    localStorage.removeItem(OFFICE_STORAGE_KEY)
+    setFixtureRevision((value) => value + 1)
+  }
+
+  function setReviewResolution(id: string, status: ResolutionStatus, note: string) {
+    setPublicationByCase((current) => ({
+      ...current,
+      [caseId]: resolveReviewItem(publication, id, status, note),
+    }))
+  }
+
+  function advancePublication(target: PublicationStage) {
+    const outcome = transitionPublication(publication, target)
+    if (!outcome.ok) return outcome
+    setPublicationByCase((current) => ({ ...current, [caseId]: outcome.state }))
+    return { ok: true as const }
+  }
+
+  function addCorrection(input: Omit<CorrectionInput, "id" | "createdAt">) {
+    const correction = buildCorrection(sourceCase, corrections, {
+      ...input,
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+    })
+    setCorrectionsByCase((current) => ({
+      ...current,
+      [caseId]: [...(current[caseId] ?? []), correction],
+    }))
+    return correction
+  }
+
+  function clearCorrections() {
+    setCorrectionsByCase((current) => ({ ...current, [caseId]: [] }))
   }
 
   const value: FixtureContextValue = {
@@ -98,11 +220,20 @@ export function FixtureProvider({ children }: { children: React.ReactNode }) {
     uploadError,
     isLoading,
     selectedResult,
+    sourceCase,
+    fixtureRevision,
+    publication,
+    corrections,
+    correctionImpacts,
     setCaseId,
     loadFixture,
     resetFixture,
     openTrace: setSelectedResult,
     closeTrace: () => setSelectedResult(null),
+    setReviewResolution,
+    advancePublication,
+    addCorrection,
+    clearCorrections,
   }
 
   return (

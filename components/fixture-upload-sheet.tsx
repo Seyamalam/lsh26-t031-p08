@@ -18,9 +18,14 @@ import {
 import { useFixture } from "@/components/fixture-provider"
 
 export function FixtureUploadSheet() {
-  const { loadFixture, isLoading } = useFixture()
+  const { loadFixture, isLoading, fixtureRevision } = useFixture()
   const [open, setOpen] = React.useState(false)
   const [items, setItems] = React.useState<FileUploadItem[]>([])
+
+  React.useEffect(() => {
+    const timer = window.setTimeout(() => setItems([]), 0)
+    return () => window.clearTimeout(timer)
+  }, [fixtureRevision])
 
   async function parseSelected(added: FileUploadItem[], files: File[]) {
     const item = added[0]
@@ -49,7 +54,13 @@ export function FixtureUploadSheet() {
         <UploadIcon />
         <span className="hidden sm:inline">Load JSON</span>
       </Button>
-      <Sheet open={open} onOpenChange={setOpen}>
+      <Sheet
+        open={open}
+        onOpenChange={(nextOpen) => {
+          setOpen(nextOpen)
+          if (!nextOpen) setItems([])
+        }}
+      >
         <SheetContent className="w-[min(28rem,96vw)] sm:max-w-[28rem]">
           <SheetHeader className="border-b pr-12">
             <SheetTitle className="flex items-center gap-2">

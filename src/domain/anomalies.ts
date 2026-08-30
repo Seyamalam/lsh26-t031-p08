@@ -17,8 +17,8 @@ export type AnomalyFinding = {
   explanation: string
 }
 
-const total = (mark: Mark) =>
-  mark === "AB" ? null : typeof mark === "number" ? mark : mark.theory + mark.practical
+const total = (mark: Mark | undefined) =>
+  mark === undefined || mark === "AB" ? null : typeof mark === "number" ? mark : mark.theory + mark.practical
 
 const mean = (values: number[]) => values.reduce((sum, value) => sum + value, 0) / values.length
 const deviation = (values: number[], average: number) =>

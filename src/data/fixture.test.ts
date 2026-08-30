@@ -45,4 +45,9 @@ describe("fixture import boundary", () => {
     ).rejects.toThrow("5 MiB")
     expect(read).toBe(false)
   })
+
+  it("rejects ZIP and accepts a JSON extension with a blank MIME type", async () => {
+    await expect(loadFixtureFile({ size: 10, name: "fixture.zip", type: "application/zip", text: async () => "{}" })).rejects.toThrow("JSON fixture")
+    await expect(loadFixtureFile({ size: 10, name: "fixture.json", type: "", text: async () => JSON.stringify(bundledFixture) })).resolves.toMatchObject({ problem_id: "P08" })
+  })
 })
