@@ -31,7 +31,7 @@ The project uses no external UI template, stock image, illustration, commercial 
 
 ## AI tools
 
-OpenAI Codex, ChatGPT, and OpenCode assisted with planning, implementation, test drafting, interface work, code review, documentation, and the original brand mark. Touhidul Alam Seyam checked their output against the P08 clarifications and verified the repository with automated tests, TypeScript, ESLint, a production build, and browser QA. He is the sole implementation owner.
+AI assistance = OpenCode was used for implementation support. All outputs were verified with automated bun tests, browser qa, production builds in Vercel, linters and live deployment checks.
 
 ## Original work statement
 

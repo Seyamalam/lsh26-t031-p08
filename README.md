@@ -10,6 +10,7 @@ Result Office is the LofiStack Hackathon 2026 submission for P08, School Result 
 | Problem | `P08` |
 | Repository | <https://github.com/Seyamalam/lsh26-t031-p08> |
 | Live application | <https://lsh26-t031-p08.vercel.app> |
+| Combined demo video | <https://github.com/Seyamalam/lsh26-t031-p08/releases/tag/lsh26-demo> |
 | Event start code | `LSH26-8490-C900` |
 
 Judges should evaluate the exact 40-character commit SHA entered in the final submission form.
@@ -213,7 +214,7 @@ The application uses Next.js 16.3.3, React 19.2.8, TypeScript, shadcn/ui, Base U
 
 ## AI disclosure
 
-OpenAI Codex, ChatGPT, and OpenCode assisted with planning, implementation, test drafting, interface work, code review, documentation, and the app brand mark. Touhidul Alam Seyam reviewed their output against the published rules and verified it with automated tests, TypeScript, ESLint, a production build, and browser QA. He remains the sole implementation owner.
+AI assistance = OpenCode was used for implementation support. All outputs were verified with automated bun tests, browser qa, production builds in Vercel, linters and live deployment checks.
 
 ## Known limitations
 
