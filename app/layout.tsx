@@ -1,29 +1,38 @@
-import { Geist, Geist_Mono, Inter } from "next/font/google"
+import type { Metadata } from "next"
+import { Bricolage_Grotesque, Public_Sans } from "next/font/google"
 
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'})
-
-const fontMono = Geist_Mono({
+const publicSans = Public_Sans({
   subsets: ["latin"],
-  variable: "--font-mono",
+  variable: "--font-sans",
 })
+
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-heading",
+})
+
+export const metadata: Metadata = {
+  title: "Result Register · P08",
+  description:
+    "An auditable school result processing and GPA engine for LofiStack Hackathon 2026.",
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={cn("antialiased", fontMono.variable, "font-sans", inter.variable)}
-    >
-      <body>
-        <ThemeProvider>{children}</ThemeProvider>
+    <html lang="en">
+      <body
+        className={cn(
+          "min-h-svh bg-background font-sans text-foreground antialiased",
+          publicSans.variable,
+          bricolage.variable,
+        )}
+      >
+        {children}
       </body>
     </html>
   )

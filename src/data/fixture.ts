@@ -1,7 +1,7 @@
 import type { Fixture, FixtureCase, Mark, Student, Subject } from '../domain/types'
 import publishedFixture from './P08_school_results_public.json'
 
-export const bundledFixture = publishedFixture as Fixture
+export const bundledFixture = publishedFixture as unknown as Fixture
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
