@@ -65,6 +65,13 @@ export function reconcilePublicationState(
   }
 }
 
+export function resetPublicationAfterCorrection(
+  _previous: PublicationState,
+  checking: CheckingLists
+): PublicationState {
+  return createPublicationState(checking)
+}
+
 export function resolveReviewItem(
   state: PublicationState,
   id: string,

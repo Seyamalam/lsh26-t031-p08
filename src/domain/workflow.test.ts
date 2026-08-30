@@ -5,6 +5,7 @@ import {
   buildReviewQueue,
   createPublicationState,
   resolveReviewItem,
+  resetPublicationAfterCorrection,
   transitionPublication,
 } from "./workflow"
 
@@ -58,5 +59,16 @@ describe("publication workflow", () => {
   it("prevents skipped and backward transitions", () => {
     const state = createPublicationState({ optional: [], practical: [], absent: [] })
     expect(transitionPublication(state, "approved")).toMatchObject({ ok: false })
+  })
+
+  it("returns a published case to Draft with corrected evidence reopened", () => {
+    const published = {
+      ...createPublicationState({ optional: [], practical: [], absent: [] }),
+      stage: "published" as const,
+    }
+    const reset = resetPublicationAfterCorrection(published, checking)
+    expect(reset.stage).toBe("draft")
+    expect(reset.reviewItems).toHaveLength(2)
+    expect(reset.reviewItems.every((item) => item.status === "open")).toBe(true)
   })
 })

@@ -16,6 +16,7 @@ import {
   createPublicationState,
   reconcilePublicationState,
   resolveReviewItem,
+  resetPublicationAfterCorrection,
   transitionPublication,
   type PublicationStage,
   type PublicationState,
@@ -177,15 +178,28 @@ export function FixtureProvider({ children }: { children: React.ReactNode }) {
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
     })
+    const nextCorrections = [...corrections, correction]
+    const nextChecking = buildCheckingLists(
+      evaluateCase(applyCorrections(sourceCase, nextCorrections))
+    )
     setCorrectionsByCase((current) => ({
       ...current,
-      [caseId]: [...(current[caseId] ?? []), correction],
+      [caseId]: nextCorrections,
+    }))
+    setPublicationByCase((current) => ({
+      ...current,
+      [caseId]: resetPublicationAfterCorrection(publication, nextChecking),
     }))
     return correction
   }
 
   function clearCorrections() {
     setCorrectionsByCase((current) => ({ ...current, [caseId]: [] }))
+    const originalChecking = buildCheckingLists(evaluateCase(sourceCase))
+    setPublicationByCase((current) => ({
+      ...current,
+      [caseId]: resetPublicationAfterCorrection(publication, originalChecking),
+    }))
   }
 
   const value: FixtureContextValue = {

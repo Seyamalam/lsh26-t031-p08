@@ -234,7 +234,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </Alert>
           </div>
         )}
-        <main key={fixtureRevision} id="main-content" className="min-w-0 flex-1 p-4 md:p-6">
+        <main key={`${fixtureRevision}:${caseId}`} id="main-content" className="min-w-0 flex-1 p-4 md:p-6">
           {children}
         </main>
         <footer className="border-t px-4 py-3 text-xs text-muted-foreground md:px-6">
