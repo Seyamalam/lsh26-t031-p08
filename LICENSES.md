@@ -22,6 +22,7 @@
 | Public Sans | Google Fonts through `next/font` | SIL Open Font License 1.1 | Body and data type |
 | Bricolage Grotesque | Google Fonts through `next/font` | SIL Open Font License 1.1 | Display type |
 | Vitest | 4.1.11 | MIT | Rule, fixture, evidence, and CSV tests |
+| fake-indexeddb | 6.2.5 | Apache-2.0 | IndexedDB adapter integration tests in the test environment only |
 | TypeScript | 5.9.3 | Apache-2.0 | Static typing and type verification |
 | LofiStack P08 public fixture | Organizer participant pack, schema 2.2 | Organizer-supplied event material | The 25 published cases in `src/data/P08_school_results_public.json` and the one-case import sample in `public/sample-p08-fixture.json` |
 | Result Office brand mark | AI-assisted original asset generated during the event | Participant-owned generated asset | Sidebar mark and favicon at `public/brand-mark.png` and `app/icon.png` |

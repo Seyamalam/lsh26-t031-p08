@@ -9,12 +9,12 @@
   "pre_event_materials": [],
   "sample_data": {
     "loads_published_fixture": true,
-    "method": "Bundled organizer fixture plus in-browser JSON file upload using the published schema 2.2 shape",
-    "reset_instructions": "Select Reset in the header to restore the bundled 25-case fixture and PUB-01.",
+    "method": "Bundled organizer fixture plus validated in-browser JSON import. Use once is session-only; Save on this device creates an explicit IndexedDB record.",
+    "reset_instructions": "Select Open bundled data in the header or choose Bundled data in the Dataset selector.",
     "valid_import_sample": "public/sample-p08-fixture.json",
     "import_route": "Use Load JSON in the shared header on any workspace route. JSON is limited to 5 MiB and validated before replacing current data."
   },
-  "problem_solving_method": "A pure TypeScript engine evaluates subject component passes, grade bands, optional bonus, compulsory-fail override, final GPA, and checking flags. The Next.js interface derives the register, per-student audit trace, CSV exports, and three non-exclusive checking queues from the same evaluated result objects. Automated tests cover boundaries, overlap, uploads, exports, judge examples, and all 25 public cases.",
+  "problem_solving_method": "A pure TypeScript engine evaluates subject component passes, grade bands, optional bonus, compulsory-fail override, final GPA, and checking flags. A versioned native IndexedDB catalog retains only explicitly saved source data and office state, while results and anomalies remain derived. The Next.js interface derives the register, trace, CSV exports, checks, publication workflow, correction history, report cards, and anomaly findings from the activated dataset and case.",
   "requirements": {
     "R1": {
       "status": "complete",
@@ -48,6 +48,11 @@
       "status": "complete",
       "route": "/anomalies",
       "evidence": "Explainable z-score outliers, class mean gaps, theory/practical percentage gaps, duplicate seven-mark signatures, and repeated total patterns. Each finding states its values and fixed threshold. Tests: src/domain/anomalies.test.ts. Sources: src/domain/anomalies.ts, components/anomalies-view.tsx."
+    },
+    "device_dataset_workspaces": {
+      "status": "complete",
+      "route": "/datasets",
+      "evidence": "Explicit Use once and Save on this device paths; versioned IndexedDB records with source provenance, SHA-256 deduplication, original JSON export, validated replacement, deletion, clear-all, last-case restoration, three-entry LRU cache, and datasetId plus caseId office-state namespacing. Screenshot: docs/screenshots/dataset-manager.png. Tests: src/storage/workspace.test.ts, src/storage/indexed-db.test.ts, src/data/fixture.test.ts. Sources: src/storage/workspace.ts, src/storage/indexed-db.ts, src/data/fixture-worker.ts, components/fixture-provider.tsx, components/datasets-view.tsx."
     }
   },
   "verification": {
@@ -64,6 +69,7 @@
       "/publication",
       "/corrections",
       "/anomalies",
+      "/datasets",
       "/sample-p08-fixture.json"
     ],
     "screenshots": [
@@ -71,6 +77,7 @@
       "docs/screenshots/results-register-export.png",
       "docs/screenshots/student-trace-hard-edge.png",
       "docs/screenshots/checking-lists-export.png"
+      ,"docs/screenshots/dataset-manager.png"
     ]
   },
   "team_members": [
@@ -98,17 +105,20 @@
     "Preserve the uncancelled GPA and exact failing-subject decisions when the compulsory-fail override publishes 0.00/F.",
     "Derive all three non-exclusive teacher queues from the same evaluated result model used by the register and trace.",
     "Bundle the organizer fixture and a valid one-case import sample, then validate judge-supplied JSON locally so evaluation requires no secret or external service.",
-    "Expose four current-case hard-edge traces on /dashboard so judges can reach the required evidence without searching."
+    "Expose four current-case hard-edge traces on /dashboard so judges can reach the required evidence without searching.",
+    "Persist only explicit saved imports and source-linked office state in IndexedDB; never persist derived results or anomaly findings.",
+    "Namespace office records by dataset ID and case ID so identical case names in different sources cannot collide."
   ],
   "known_limitations": [
     "Corrections are stored in an auditable browser-side demo workflow and do not write back to the imported JSON file.",
-    "Uploaded fixture, selected case, table filters, corrections and publication state are session-local; Load JSON and Reset clear all office state."
+    "Use once imports remain session-only; saved datasets depend on IndexedDB availability and the current browser profile.",
+    "Corrections do not rewrite the retained original JSON; Export original returns the exact source file."
   ],
   "ai_tools_used": [
     {
       "tool": "OpenAI Codex",
       "used_for": "Implementation assistance, test drafting, interface composition and documentation.",
-      "how_output_was_verified": "Checked against the official clarifications with 55 automated tests, all 25 public cases, TypeScript, ESLint, a production Next.js build, and browser QA."
+      "how_output_was_verified": "Checked against the official clarifications with 62 automated tests, all 25 public cases, IndexedDB integration coverage, TypeScript, ESLint, a production Next.js build, and browser QA."
     },
     {
       "tool": "ChatGPT",

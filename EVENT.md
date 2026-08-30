@@ -17,3 +17,5 @@
 ## Declaration
 
 The first event-work commit added this file. The team will preserve the repository history until the results are announced.
+
+The completed repository includes the P08 rule engine, evidence interface, browser-local dataset catalog, tests, documentation, and deployment configuration. No pre-event solution material was added later.

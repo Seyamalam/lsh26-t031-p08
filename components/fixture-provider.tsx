@@ -7,7 +7,7 @@ import { applyCorrections, buildCorrection, calculateCorrectionImpact, type Corr
 import { buildCheckingLists, evaluateCase } from "@/src/domain/engine"
 import { createPublicationState, reconcilePublicationState, resolveReviewItem, resetPublicationAfterCorrection, transitionPublication, type PublicationStage, type PublicationState, type ResolutionStatus } from "@/src/domain/workflow"
 import { createIndexedDbWorkspaceAdapter } from "@/src/storage/indexed-db"
-import { BUNDLED_DATASET_ID, createWorkspaceCatalog, readLastSelectedDataset, resolveWorkspaceActivation, writeLastSelectedDataset, type DatasetRecord } from "@/src/storage/workspace"
+import { BUNDLED_DATASET_ID, createWorkspaceCatalog, readLastSelectedDataset, resolveWorkspaceActivation, workspaceStorageError, writeLastSelectedDataset, type DatasetRecord } from "@/src/storage/workspace"
 import type { CheckingLists, Fixture, FixtureCase, StudentResult } from "@/src/domain/types"
 
 type LoadMode = "once" | "save"
@@ -70,7 +70,7 @@ export function FixtureProvider({ children }: { children: React.ReactNode }) {
   }
   async function refreshDatasets() {
     try { setSavedDatasets(await catalog.listDatasets()); setStorageError("") }
-    catch (error) { setStorageError(error instanceof Error ? error.message : "Device storage is unavailable.") }
+    catch (error) { setStorageError(workspaceStorageError(error).message) }
   }
   async function activate(requestedId: string, requestedCase?: string) {
     const token = ++requestId.current; setIsLoading(true)
@@ -90,7 +90,7 @@ export function FixtureProvider({ children }: { children: React.ReactNode }) {
       setPublicationByWorkspace((current) => ({ ...current, [key]: office?.publication ?? createPublicationState(buildCheckingLists(evaluateCase(nextSource))) }))
       setSelectedResult(null); setUploadError(""); setUploadNotice(""); setStorageError("")
       setFixtureRevision((value) => value + 1); writeLastSelectedDataset(localStorage, activation.datasetId)
-    } catch (error) { setStorageError(error instanceof Error ? error.message : "Could not open this dataset.") }
+    } catch (error) { setStorageError(workspaceStorageError(error).message) }
     finally { if (token === requestId.current) setIsLoading(false) }
   }
 
@@ -112,7 +112,7 @@ export function FixtureProvider({ children }: { children: React.ReactNode }) {
       setPublicationByWorkspace((current) => ({ ...current, [key]: office?.publication ?? current[key] ?? createPublicationState(buildCheckingLists(evaluateCase(nextSource))) }))
       setCaseIdState(nextCaseId); setSelectedResult(null); setUploadError(""); setUploadNotice("")
       if (activeDataset) { await catalog.updateLastOpenedCase(activeDataset.id, nextCaseId); setActiveDataset({ ...activeDataset, lastOpenedCase: nextCaseId }) }
-    } catch (error) { setStorageError(error instanceof Error ? error.message : "Could not open this case.") }
+    } catch (error) { setStorageError(workspaceStorageError(error).message) }
     finally { if (token === requestId.current) setIsLoading(false) }
   }
 
@@ -141,7 +141,7 @@ export function FixtureProvider({ children }: { children: React.ReactNode }) {
 
   function persistOffice(nextCorrections: Correction[], nextPublication: PublicationState) {
     if (!isPersistentDataset) return
-    void catalog.saveOfficeState({ datasetId, caseId, corrections: nextCorrections, publication: nextPublication }).catch((error) => setStorageError(error instanceof Error ? error.message : "Could not save office state."))
+    void catalog.saveOfficeState({ datasetId, caseId, corrections: nextCorrections, publication: nextPublication }).catch((error) => setStorageError(workspaceStorageError(error).message))
   }
   function resetFixture() { void activate(BUNDLED_DATASET_ID) }
   async function openDataset(nextId: string) { await activate(nextId) }

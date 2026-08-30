@@ -70,9 +70,12 @@ function summarize(fixture: Fixture): DatasetCaseSummary[] {
   }))
 }
 
-function storageMessage(error: unknown) {
+export function workspaceStorageError(error: unknown) {
   if (error instanceof DOMException && error.name === "QuotaExceededError") {
     return new Error("Device storage is full. Export or delete a saved dataset, then try again.")
+  }
+  if (error instanceof DOMException && (error.name === "SecurityError" || error.name === "NotAllowedError")) {
+    return new Error("Browser privacy settings blocked device storage. Use once or allow site storage.")
   }
   return error instanceof Error ? error : new Error("Device storage is unavailable in this browser.")
 }
@@ -104,7 +107,7 @@ export function createWorkspaceCatalog(adapter: WorkspaceAdapter) {
       try {
         await adapter.putDataset(record)
       } catch (error) {
-        throw storageMessage(error)
+        throw workspaceStorageError(error)
       }
       return { record, deduplicated: false as const }
     },
@@ -112,7 +115,7 @@ export function createWorkspaceCatalog(adapter: WorkspaceAdapter) {
       const record = await adapter.getDataset(id)
       if (!record) throw new Error("Saved dataset not found.")
       const next = { ...record, name: name.trim() || record.name }
-      await adapter.putDataset(next)
+      try { await adapter.putDataset(next) } catch (error) { throw workspaceStorageError(error) }
       return next
     },
     async replaceDataset(id: string, input: Omit<DatasetInput, "name">) {
@@ -133,8 +136,7 @@ export function createWorkspaceCatalog(adapter: WorkspaceAdapter) {
         fixture: input.fixture,
         lastOpenedCase: input.fixture.cases[0].case_id,
       }
-      await adapter.putDataset(next)
-      await adapter.deleteOfficeForDataset(id)
+      try { await adapter.putDataset(next); await adapter.deleteOfficeForDataset(id) } catch (error) { throw workspaceStorageError(error) }
       return next
     },
     async exportOriginal(id: string) {
@@ -159,7 +161,8 @@ export function createWorkspaceCatalog(adapter: WorkspaceAdapter) {
       return adapter.getOffice(officeKey(datasetId, caseId))
     },
     async saveOfficeState(input: Omit<OfficeStateRecord, "key" | "updatedAt">) {
-      await adapter.putOffice({ ...input, key: officeKey(input.datasetId, input.caseId), updatedAt: new Date().toISOString() })
+      try { await adapter.putOffice({ ...input, key: officeKey(input.datasetId, input.caseId), updatedAt: new Date().toISOString() }) }
+      catch (error) { throw workspaceStorageError(error) }
     },
     async deleteOfficeState(datasetId: string) {
       await adapter.deleteOfficeForDataset(datasetId)

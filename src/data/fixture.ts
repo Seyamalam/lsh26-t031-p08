@@ -31,10 +31,15 @@ function parseInWorker(rawJson: string) {
   })
 }
 
+async function parseLargeFixture(rawJson: string) {
+  try { return await parseInWorker(rawJson) }
+  catch { return parseFixture(rawJson) }
+}
+
 export async function readFixtureFile(file: FixtureFile) {
   validateFileEnvelope(file)
   const rawJson = await file.text()
-  const fixture = file.size > WORKER_PARSE_THRESHOLD && typeof Worker !== "undefined" ? await parseInWorker(rawJson) : parseFixture(rawJson)
+  const fixture = file.size > WORKER_PARSE_THRESHOLD && typeof Worker !== "undefined" ? await parseLargeFixture(rawJson) : parseFixture(rawJson)
   const fingerprint = await sha256Fingerprint(rawJson)
   return { rawJson, fixture, fingerprint, byteSize: file.size }
 }

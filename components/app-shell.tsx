@@ -199,7 +199,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             value={datasetId}
             onChange={(event) => void openDataset(event.target.value)}
             disabled={isLoading}
-            className="hidden h-9 max-w-48 rounded-md border bg-background px-2 text-sm sm:block"
+            className="h-9 w-28 rounded-md border bg-background px-2 text-sm sm:w-44"
           >
             <optgroup label="Bundled data"><option value="bundled">Bundled data</option></optgroup>
             {datasetId.startsWith("session:") && <optgroup label="Session"><option value={datasetId}>{datasetName}</option></optgroup>}
@@ -213,7 +213,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               label: item.case_id,
             }))}
           >
-            <SelectTrigger className="w-28" aria-label="Fixture case">
+            <SelectTrigger className="w-24 sm:w-28" aria-label="Case">
               <SelectValue />
             </SelectTrigger>
             <SelectContent align="end">

@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs"
 import { resolve } from "node:path"
 import { describe, expect, it } from "vitest"
 
-import { bundledFixture, loadFixtureFile, MAX_FIXTURE_BYTES, parseFixture } from "./fixture"
+import { bundledFixture, loadFixtureFile, MAX_FIXTURE_BYTES, parseFixture, WORKER_PARSE_THRESHOLD } from "./fixture"
 
 describe("fixture import boundary", () => {
   it("accepts the checked-in valid sample", () => {
@@ -49,5 +49,15 @@ describe("fixture import boundary", () => {
   it("rejects ZIP and accepts a JSON extension with a blank MIME type", async () => {
     await expect(loadFixtureFile({ size: 10, name: "fixture.zip", type: "application/zip", text: async () => "{}" })).rejects.toThrow("JSON fixture")
     await expect(loadFixtureFile({ size: 10, name: "fixture.json", type: "", text: async () => JSON.stringify(bundledFixture) })).resolves.toMatchObject({ problem_id: "P08" })
+  })
+
+  it("falls back to synchronous validation when a large-file worker cannot start", async () => {
+    const originalWorker = globalThis.Worker
+    Object.defineProperty(globalThis, "Worker", { configurable: true, value: class { constructor() { throw new Error("worker blocked") } } })
+    try {
+      await expect(loadFixtureFile({ size: WORKER_PARSE_THRESHOLD + 1, name: "fixture.json", type: "application/json", text: async () => JSON.stringify(bundledFixture) })).resolves.toMatchObject({ problem_id: "P08" })
+    } finally {
+      Object.defineProperty(globalThis, "Worker", { configurable: true, value: originalWorker })
+    }
   })
 })

@@ -74,6 +74,10 @@ describe("workspace catalog", () => {
     expect(readLastSelectedDataset(storage)).toBeNull()
 
     const catalog = createWorkspaceCatalog(createMemoryWorkspaceAdapter())
+    const saved = await catalog.saveDataset({ name: "Restore me", sourceFilename: "restore.json", rawJson: raw, fixture: bundledFixture, fingerprint: "restore-sha", byteSize: raw.length })
+    await catalog.updateLastOpenedCase(saved.record.id, "PUB-02")
+    const restored = await resolveWorkspaceActivation(saved.record.id, catalog, bundledFixture)
+    expect(restored).toMatchObject({ datasetId: saved.record.id, caseId: "PUB-02", record: { name: "Restore me" } })
     const fallback = await resolveWorkspaceActivation("missing", catalog, bundledFixture)
     expect(fallback).toMatchObject({ datasetId: BUNDLED_DATASET_ID, caseId: bundledFixture.cases[0].case_id })
   })

@@ -20,10 +20,11 @@ Judges should evaluate the exact 40-character commit SHA entered in the final su
 2. Use one of the four Judge shortcuts to open the compulsory fail, practical fail, optional rule, or absent trace.
 3. Open `/results` to search, sort, filter, paginate, inspect a trace, or export the full register as CSV.
 4. Open `/checks` to inspect and export the Optional, Practical fail, and Absent lists separately.
-5. Use the case selector to run another published case. Load JSON accepts a complete P08 fixture, and Reset restores the bundled fixture.
-6. Open `/publication` to resolve review items and move the case through Draft, Checked, Approved, and Published.
-7. Open `/corrections` to record a mark correction, inspect its GPA impact, and print the current report card.
-8. Open `/anomalies` to review transparent subject, class, component, duplicate, and repeated-mark findings.
+5. Use the Dataset selector to move between bundled data and saved imports. Use the separate Case selector for a case inside that dataset.
+6. Open `/datasets` to inspect provenance, rename, export, replace, or delete saved imports.
+7. Open `/publication` to resolve review items and move the case through Draft, Checked, Approved, and Published.
+8. Open `/corrections` to record a mark correction, inspect its GPA impact, and print the current report card.
+9. Open `/anomalies` to review transparent subject, class, component, duplicate, and repeated-mark findings.
 
 [`DEMO-60S.md`](DEMO-60S.md) gives a timed walkthrough.
 
@@ -54,6 +55,10 @@ Judges should evaluate the exact 40-character commit SHA entered in the final su
 
 ![Teacher checking list with reasons, trace links, and CSV export](docs/screenshots/checking-lists-export.png)
 
+### Saved dataset manager
+
+![Saved dataset manager with provenance, fingerprint, export, replace, and delete controls](docs/screenshots/dataset-manager.png)
+
 ## Calculation flow
 
 ```mermaid
@@ -73,6 +78,12 @@ flowchart LR
   K --> M[Optional, practical, and absent lists]
   L --> N[CSV exports]
   M --> N
+  B --> O{Import choice}
+  O -->|Use once| P[Session memory]
+  O -->|Save on this device| Q[IndexedDB catalog]
+  Q --> R[Dataset and case activation]
+  R --> C
+  R --> S[Namespaced corrections and publication state]
 ```
 
 The UI does not recalculate results. The register, charts, traces, checking lists, and exports all consume the same `StudentResult` objects from the domain engine.
@@ -89,7 +100,7 @@ The UI does not recalculate results. The register, charts, traces, checking list
 
 ## Importing a fixture
 
-The organizer fixture is bundled at [`src/data/P08_school_results_public.json`](src/data/P08_school_results_public.json). A smaller valid file containing `PUB-01` is checked in at [`public/sample-p08-fixture.json`](public/sample-p08-fixture.json). Download it from the running app at `/sample-p08-fixture.json`, then use Load JSON in the header.
+The organizer fixture is bundled at [`src/data/P08_school_results_public.json`](src/data/P08_school_results_public.json). A smaller valid file containing `PUB-01` is checked in at [`public/sample-p08-fixture.json`](public/sample-p08-fixture.json). Download it from the running app at `/sample-p08-fixture.json`, then use Load JSON in the header. Choose Use once for session memory or Save on this device for an explicit browser-local copy.
 
 An import must have this top-level shape:
 
@@ -129,7 +140,18 @@ An import must have this top-level shape:
 
 The excerpt shows the mark formats. A valid case must include at least 60 students in two classes, exactly six compulsory subject codes, and one distinct optional subject per student. Use the checked-in sample when testing an import.
 
-The validator accepts JSON files up to 5 MiB. It checks schema version 2.2, unique and trimmed case, subject, and student identifiers, integer mark ranges, practical mark objects, subject codes, and the seven-mark requirement. ZIP and other file types are rejected before reading. A rejected file produces a readable error without replacing the current data.
+The validator accepts JSON files up to 5 MiB. It checks schema version 2.2, unique and trimmed case, subject, and student identifiers, integer mark ranges, practical mark objects, subject codes, and the seven-mark requirement. ZIP and other file types are rejected before reading. Files above 250 KiB are parsed and validated in a module Web Worker, with a synchronous fallback when workers are unavailable. A rejected file produces a readable error without replacing the current data.
+
+## Dataset storage
+
+- Use once keeps the validated fixture and its office state in memory for the current tab session.
+- Save on this device writes a versioned IndexedDB record with a UUID, chosen name, source filename, import time, byte size, SHA-256 fingerprint, case summary, original JSON, normalized fixture, and last opened case.
+- Exact file fingerprints are deduplicated. The existing saved record opens instead of creating a second copy.
+- `/datasets` provides open, rename, original JSON export, validated replacement, delete, and clear-all controls.
+- Local storage contains only the last selected saved dataset ID. On refresh, the app loads that record from IndexedDB. The fixture itself never goes into local storage.
+- Corrections and publication state use `datasetId + caseId` keys in IndexedDB. Derived results, checks, charts, and anomaly findings are recalculated and are never persisted.
+- A three-entry least-recently-used memory cache avoids repeated fixture cloning while preventing unbounded memory growth.
+- Delete and clear-all remove matching office state. Deleting the active dataset falls back to bundled data.
 
 ## Office controls
 
@@ -137,7 +159,7 @@ The validator accepts JSON files up to 5 MiB. It checks schema version 2.2, uniq
 - `/corrections` stores the original and replacement mark, source reason, timestamp, and before/after GPA. Corrected marks feed the same result engine used by the register, checks, trace, and report card. Browser Print produces the selected student's current report card.
 - `/anomalies` uses only descriptive statistics and exact comparisons. Every finding states its values and threshold. It does not predict marks or change a result.
 
-Workflow and correction demo state is case-specific and session-local. It is never written to browser storage. Loading or resetting a fixture clears it.
+For bundled and explicitly saved datasets, workflow and correction state is stored by dataset and case in IndexedDB. Use once remains session-only. A correction always returns the affected case to Draft and rebuilds its review queue.
 
 ## Run locally
 
@@ -169,9 +191,10 @@ The tests cover grade boundaries, practical component overrides, absence handlin
 - Theory and practical checks run before grade-band lookup, so a high combined total cannot hide a failed component.
 - The uncancelled GPA remains in the result model after a compulsory failure.
 - Checking lists are non-exclusive and come from the same evaluated result used by the trace.
-- Uploaded fixtures stay in browser memory. The app needs no network request after it loads.
+- Imported fixtures are processed locally. The app needs no network request after it loads.
 - Next.js App Router pages separate summary, register, and checking work. The shared trace sheet preserves the current page and filters.
-- Publication, correction, and anomaly routes share the same corrected case state. Office state is scoped by case and kept in memory for the current session only.
+- Publication, correction, and anomaly routes share the same corrected case state. Persistent office state is scoped by dataset ID and case ID, which prevents matching case names from colliding.
+- Dataset and case changes remount route-local controls before deriving results, checks, charts, and anomalies from the activated source.
 - The anomaly scanner uses fixed thresholds, z scores, class means, component percentages, and exact signatures. It never predicts a grade.
 - shadcn and Base UI primitives provide keyboard behavior and focus management. The app also has semantic tables, chart accessibility layers, a skip link, visible focus, responsive navigation, dark mode, and reduced-motion handling.
 
@@ -194,8 +217,9 @@ OpenAI Codex, ChatGPT, and OpenCode assisted with planning, implementation, test
 
 ## Known limitations
 
-- Corrections are an auditable browser-side demo workflow. They do not write back to the imported JSON file.
-- Uploaded fixture data, office state, the selected case, and table filters reset after a browser refresh. Load JSON and Reset also clear every case's office state.
+- Corrections do not modify the retained original JSON. Export original always returns the exact imported source.
+- IndexedDB data belongs to the current browser profile and device. Clearing site data removes it.
+- Browser privacy settings or storage quotas can block saving. Use once remains available when persistent storage is unavailable.
 
 ## Repository records
 
