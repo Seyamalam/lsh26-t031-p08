@@ -109,6 +109,7 @@ The interface is a compact school result-office workspace. Separate App Router p
 
 - **Application:** Next.js 16.3.3 App Router, React 19.2.8, TypeScript
 - **Interface:** shadcn/ui (`b0` / base-nova preset), Base UI, Tailwind CSS 4, Lucide icons
+- **Fixture input:** beUI file-upload block with Motion, adapted for immediate local JSON validation
 - **Data views:** TanStack React Table and Recharts through shadcn Chart
 - **Testing:** Vitest, TypeScript compiler, ESLint, production Next.js build
 - **Data:** organizer-supplied JSON fixture; no backend or database
@@ -120,11 +121,12 @@ See [`LICENSES.md`](LICENSES.md) for third-party materials.
 
 | Registered member | GitHub username | Major contribution | Evidence |
 | --- | --- | --- | --- |
-| Touhidul Alam Seyam | `Seyamalam` | Sole participant: domain modeling, fixture integration, result engine, tests, UI/UX, accessibility, documentation, and verification | `src/domain/`, `src/data/`, `components/`, `app/`, repository history |
+| Touhidul Alam Seyam | `Seyamalam` | Sole implementation owner: domain modeling, fixture integration, result engine, tests, UI/UX, accessibility, documentation, and verification | `src/domain/`, `src/data/`, `components/`, `app/`, repository history |
+| Pratik Dev | — | Unable to participate in the build due to a severe health crisis | Team status declaration |
 
 ## AI usage
 
-OpenAI Codex was used as a coding assistant for implementation, test drafting, interface composition, and documentation. Every output was reviewed through the official clarification rules, automated rule tests, TypeScript, ESLint, a production build, and browser interaction/screenshots. The participant remains responsible for and can explain the submitted work.
+OpenAI Codex, ChatGPT, and OpenCode were used as assistants for planning, implementation, test drafting, interface composition, code review, documentation, and generating the app brand mark. Their outputs were reviewed through the official clarification rules, automated rule tests, TypeScript, ESLint, a production build, and browser interaction. Touhidul Alam Seyam remains the sole implementation owner and is responsible for the submitted work.
 
 ## Known limitations
 

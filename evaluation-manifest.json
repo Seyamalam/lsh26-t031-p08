@@ -35,7 +35,7 @@
     {
       "registered_name": "Touhidul Alam Seyam",
       "github_username": "Seyamalam",
-      "major_contribution": "Sole participant: domain modeling, fixture integration, result engine, tests, Next.js/shadcn interface, accessibility, documentation and verification.",
+      "major_contribution": "Sole implementation owner: domain modeling, fixture integration, result engine, tests, Next.js/shadcn interface, accessibility, documentation and verification.",
       "evidence_paths_or_commits": [
         "src/domain/",
         "src/data/",
@@ -43,6 +43,11 @@
         "app/",
         "repository commit history"
       ]
+    },
+    {
+      "registered_name": "Pratik Dev",
+      "major_contribution": "Unable to participate in the build due to a severe health crisis",
+      "evidence_paths_or_commits": []
     }
   ],
   "major_design_decisions": [
@@ -54,14 +59,23 @@
   ],
   "known_limitations": [
     "The evaluator accepts complete fixture JSON rather than supporting per-mark editing.",
-    "Uploaded fixture state and filters reset on page refresh.",
-    "Fixture, selected case and table filter state reset on a browser refresh."
+    "Uploaded fixture, selected case and table filter state reset on a browser refresh."
   ],
   "ai_tools_used": [
     {
       "tool": "OpenAI Codex",
       "used_for": "Implementation assistance, test drafting, interface composition and documentation.",
       "how_output_was_verified": "Checked against the official clarifications with 35 automated tests, all 25 public cases, TypeScript, ESLint, a production Next.js build and browser QA."
+    },
+    {
+      "tool": "ChatGPT",
+      "used_for": "Problem planning, interface review, documentation and generation of the original app brand mark.",
+      "how_output_was_verified": "Reviewed by the sole implementation owner and checked through the same automated and browser verification workflow."
+    },
+    {
+      "tool": "OpenCode",
+      "used_for": "Implementation assistance and code review.",
+      "how_output_was_verified": "Reviewed by the sole implementation owner, then checked with tests, TypeScript, ESLint, production build and browser QA."
     }
   ],
   "licenses_file": "LICENSES.md",

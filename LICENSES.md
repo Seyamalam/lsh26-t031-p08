@@ -15,17 +15,20 @@
 | next-themes | 0.4.6 | MIT | Included by the shadcn preset scaffold; theme provider source remains available |
 | TanStack React Table | 8.21.3 | MIT | Sorting, pagination and row modeling for the result register |
 | Recharts | 3.8.0 | MIT | Accessible grade and class outcome charts through shadcn Chart |
+| beUI file-upload block | `@beui/file-upload`, beui.dev registry | MIT | Accessible single-file dropzone, adapted for immediate in-browser P08 JSON parsing |
+| Motion | 13.1.1 | MIT | Reduced-motion-aware file selection feedback used by the beUI block |
 | Public Sans | Google Fonts via `next/font` | SIL Open Font License 1.1 | Body and data typography |
 | Bricolage Grotesque | Google Fonts via `next/font` | SIL Open Font License 1.1 | Display typography |
 | Vitest | 4.1.11 | MIT | Automated rule and fixture tests |
 | TypeScript | 5.9.3 | Apache-2.0 | Static typing and type verification |
 | LofiStack P08 public fixture | Organizer participant pack, schema 2.2 | Organizer-supplied event material | The 25 published judge-format cases in `src/data/P08_school_results_public.json` |
+| Result Office brand mark | AI-assisted original asset generated during the event | Participant-owned generated asset | Sidebar application mark and Next.js favicon (`public/brand-mark.png`, `app/icon.png`) |
 
 No external UI template, stock image, illustration, commercial icon pack, or undeclared asset was used. The result-office composition, copy, theme, and application code were created during the event window.
 
 ## AI tools
 
-OpenAI Codex was used for implementation assistance, test drafting, interface composition, and documentation. Its output was checked against the official P08 clarifications, a 35-test automated suite, TypeScript, ESLint, a production build, and browser QA.
+OpenAI Codex, ChatGPT, and OpenCode were used for planning, implementation assistance, test drafting, interface composition, code review, documentation, and generation of the original brand mark. Outputs were checked against the official P08 clarifications, a 35-test automated suite, TypeScript, ESLint, a production build, and browser QA. Touhidul Alam Seyam is the sole implementation owner.
 
 ## Original-work statement
 
