@@ -13,6 +13,7 @@ import {
   RotateCcwIcon,
   ScanSearchIcon,
   ShieldCheckIcon,
+  CheckCircle2Icon,
 } from "lucide-react"
 
 import { FixtureUploadSheet } from "@/components/fixture-upload-sheet"
@@ -73,6 +74,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     results,
     checking,
     uploadError,
+    uploadNotice,
+    fixtureRevision,
     publication,
     setCaseId,
     resetFixture,
@@ -222,7 +225,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </Alert>
           </div>
         )}
-        <main id="main-content" className="min-w-0 flex-1 p-4 md:p-6">
+        {uploadNotice && (
+          <div className="px-4 pt-4 md:px-6">
+            <Alert>
+              <CheckCircle2Icon />
+              <AlertTitle>Fixture loaded</AlertTitle>
+              <AlertDescription>{uploadNotice}</AlertDescription>
+            </Alert>
+          </div>
+        )}
+        <main key={fixtureRevision} id="main-content" className="min-w-0 flex-1 p-4 md:p-6">
           {children}
         </main>
         <footer className="border-t px-4 py-3 text-xs text-muted-foreground md:px-6">

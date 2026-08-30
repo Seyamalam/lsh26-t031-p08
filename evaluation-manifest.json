@@ -12,7 +12,7 @@
     "method": "Bundled organizer fixture plus in-browser JSON file upload using the published schema 2.2 shape",
     "reset_instructions": "Select Reset in the header to restore the bundled 25-case fixture and PUB-01.",
     "valid_import_sample": "public/sample-p08-fixture.json",
-    "import_route": "Use Load JSON in the shared header on /dashboard, /results, or /checks."
+    "import_route": "Use Load JSON in the shared header on any workspace route. JSON is limited to 5 MiB and validated before replacing current data."
   },
   "problem_solving_method": "A pure TypeScript engine evaluates subject component passes, grade bands, optional bonus, compulsory-fail override, final GPA, and checking flags. The Next.js interface derives the register, per-student audit trace, CSV exports, and three non-exclusive checking queues from the same evaluated result objects. Automated tests cover boundaries, overlap, uploads, exports, judge examples, and all 25 public cases.",
   "requirements": {
@@ -33,6 +33,23 @@
       "evidence": "Route: /checks with Optional, Practical fail, and Absent tabs, reasons, Trace controls, and one CSV export per list. Screenshot: docs/screenshots/checking-lists-export.png. Tests: checking-list overlap in src/domain/engine.test.ts and checking-list CSV coverage in src/domain/csv.test.ts. Sources: components/checks-view.tsx, src/domain/engine.ts buildCheckingLists, src/domain/csv.ts."
     }
   },
+  "bonus_features": {
+    "publication_control": {
+      "status": "complete",
+      "route": "/publication",
+      "evidence": "Case-specific Draft, Checked, Approved, and Published workflow with actionable Open, Verified, Corrected, and Waived review statuses. Checked and Published transitions are blocked while required review items remain open. Tests: src/domain/workflow.test.ts. Sources: src/domain/workflow.ts, components/publication-view.tsx, components/fixture-provider.tsx."
+    },
+    "corrections_and_report_cards": {
+      "status": "complete",
+      "route": "/corrections",
+      "evidence": "Immutable before/after correction history with reason, time, grade and GPA impact, plus a browser-print report card from the corrected result. Tests: src/domain/corrections.test.ts. Sources: src/domain/corrections.ts, components/corrections-view.tsx."
+    },
+    "cohort_anomaly_scanner": {
+      "status": "complete",
+      "route": "/anomalies",
+      "evidence": "Explainable z-score outliers, class mean gaps, theory/practical percentage gaps, duplicate seven-mark signatures, and repeated total patterns. Each finding states its values and fixed threshold. Tests: src/domain/anomalies.test.ts. Sources: src/domain/anomalies.ts, components/anomalies-view.tsx."
+    }
+  },
   "verification": {
     "commands": [
       "bun run test",
@@ -44,6 +61,9 @@
       "/dashboard",
       "/results",
       "/checks",
+      "/publication",
+      "/corrections",
+      "/anomalies",
       "/sample-p08-fixture.json"
     ],
     "screenshots": [
@@ -81,14 +101,14 @@
     "Expose four current-case hard-edge traces on /dashboard so judges can reach the required evidence without searching."
   ],
   "known_limitations": [
-    "The evaluator accepts complete fixture JSON rather than supporting per-mark editing.",
-    "Uploaded fixture, selected case and table filter state reset on a browser refresh."
+    "Corrections are stored in an auditable browser-side demo workflow and do not write back to the imported JSON file.",
+    "Uploaded fixture, selected case, table filters, corrections and publication state are session-local; Load JSON and Reset clear all office state."
   ],
   "ai_tools_used": [
     {
       "tool": "OpenAI Codex",
       "used_for": "Implementation assistance, test drafting, interface composition and documentation.",
-      "how_output_was_verified": "Checked against the official clarifications with 40 automated tests, all 25 public cases, TypeScript, ESLint, a production Next.js build, and browser QA."
+      "how_output_was_verified": "Checked against the official clarifications with 55 automated tests, all 25 public cases, TypeScript, ESLint, a production Next.js build, and browser QA."
     },
     {
       "tool": "ChatGPT",

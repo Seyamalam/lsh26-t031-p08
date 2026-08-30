@@ -21,6 +21,9 @@ Judges should evaluate the exact 40-character commit SHA entered in the final su
 3. Open `/results` to search, sort, filter, paginate, inspect a trace, or export the full register as CSV.
 4. Open `/checks` to inspect and export the Optional, Practical fail, and Absent lists separately.
 5. Use the case selector to run another published case. Load JSON accepts a complete P08 fixture, and Reset restores the bundled fixture.
+6. Open `/publication` to resolve review items and move the case through Draft, Checked, Approved, and Published.
+7. Open `/corrections` to record a mark correction, inspect its GPA impact, and print the current report card.
+8. Open `/anomalies` to review transparent subject, class, component, duplicate, and repeated-mark findings.
 
 [`DEMO-60S.md`](DEMO-60S.md) gives a timed walkthrough.
 
@@ -126,7 +129,15 @@ An import must have this top-level shape:
 
 The excerpt shows the mark formats. A valid case must include at least 60 students in two classes, exactly six compulsory subject codes, and one distinct optional subject per student. Use the checked-in sample when testing an import.
 
-The validator also checks mark ranges, practical mark objects, subject codes, and the seven-mark requirement. A rejected file produces a readable error without replacing the current data.
+The validator accepts JSON files up to 5 MiB. It checks schema version 2.2, unique and trimmed case, subject, and student identifiers, integer mark ranges, practical mark objects, subject codes, and the seven-mark requirement. ZIP and other file types are rejected before reading. A rejected file produces a readable error without replacing the current data.
+
+## Office controls
+
+- `/publication` maintains a case-specific review queue. Every optional, practical-fail, and absent exception must be marked Verified, Corrected, or Waived before the case can leave Draft. Stage changes cannot be skipped, and Published is unavailable while a required item is open.
+- `/corrections` stores the original and replacement mark, source reason, timestamp, and before/after GPA. Corrected marks feed the same result engine used by the register, checks, trace, and report card. Browser Print produces the selected student's current report card.
+- `/anomalies` uses only descriptive statistics and exact comparisons. Every finding states its values and threshold. It does not predict marks or change a result.
+
+Workflow and correction demo state is case-specific and session-local. It is never written to browser storage. Loading or resetting a fixture clears it.
 
 ## Run locally
 
@@ -150,7 +161,7 @@ bun run lint
 bun run build
 ```
 
-The tests cover grade boundaries, practical component overrides, absence handling, optional bonus boundaries, GPA capping, compulsory failure, list overlap, fixture parsing, all 25 published cases, judge examples, CSV escaping, CSV row coverage, and filenames.
+The tests cover grade boundaries, practical component overrides, absence handling, optional bonus boundaries, GPA capping, compulsory failure, list overlap, hardened fixture parsing, all 25 published cases, judge examples, CSV output, publication gates, correction snapshots and GPA impact, report-card projections, and anomaly explanations.
 
 ## Design and implementation choices
 
@@ -160,6 +171,8 @@ The tests cover grade boundaries, practical component overrides, absence handlin
 - Checking lists are non-exclusive and come from the same evaluated result used by the trace.
 - Uploaded fixtures stay in browser memory. The app needs no network request after it loads.
 - Next.js App Router pages separate summary, register, and checking work. The shared trace sheet preserves the current page and filters.
+- Publication, correction, and anomaly routes share the same corrected case state. Office state is scoped by case and kept in memory for the current session only.
+- The anomaly scanner uses fixed thresholds, z scores, class means, component percentages, and exact signatures. It never predicts a grade.
 - shadcn and Base UI primitives provide keyboard behavior and focus management. The app also has semantic tables, chart accessibility layers, a skip link, visible focus, responsive navigation, dark mode, and reduced-motion handling.
 
 ## Technology and licenses
@@ -181,8 +194,8 @@ OpenAI Codex, ChatGPT, and OpenCode assisted with planning, implementation, test
 
 ## Known limitations
 
-- The app accepts complete fixture JSON and does not provide per-mark editing.
-- Uploaded fixture data, the selected case, and table filters reset after a browser refresh.
+- Corrections are an auditable browser-side demo workflow. They do not write back to the imported JSON file.
+- Uploaded fixture data, office state, the selected case, and table filters reset after a browser refresh. Load JSON and Reset also clear every case's office state.
 
 ## Repository records
 

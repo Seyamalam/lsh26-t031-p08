@@ -36,6 +36,7 @@ type FixtureContextValue = {
   checking: CheckingLists
   classes: string[]
   uploadError: string
+  uploadNotice: string
   isLoading: boolean
   selectedResult: StudentResult | null
   sourceCase: FixtureCase
@@ -57,7 +58,6 @@ type FixtureContextValue = {
 }
 
 const FixtureContext = React.createContext<FixtureContextValue | null>(null)
-const OFFICE_STORAGE_KEY = "p08-office-state-v1"
 
 export function FixtureProvider({ children }: { children: React.ReactNode }) {
   const [fixture, setFixture] = React.useState<Fixture>(bundledFixture)
@@ -65,6 +65,7 @@ export function FixtureProvider({ children }: { children: React.ReactNode }) {
     bundledFixture.cases[0].case_id
   )
   const [uploadError, setUploadError] = React.useState("")
+  const [uploadNotice, setUploadNotice] = React.useState("")
   const [isLoading, setIsLoading] = React.useState(false)
   const [selectedResult, setSelectedResult] =
     React.useState<StudentResult | null>(null)
@@ -72,31 +73,6 @@ export function FixtureProvider({ children }: { children: React.ReactNode }) {
   const [correctionsByCase, setCorrectionsByCase] = React.useState<Record<string, Correction[]>>({})
   const [publicationByCase, setPublicationByCase] = React.useState<Record<string, PublicationState>>({})
   const requestId = React.useRef(0)
-
-  React.useEffect(() => {
-    const timer = window.setTimeout(() => {
-    try {
-      const saved = localStorage.getItem(OFFICE_STORAGE_KEY)
-      if (!saved) return
-      const parsed = JSON.parse(saved) as {
-        correctionsByCase?: Record<string, Correction[]>
-        publicationByCase?: Record<string, PublicationState>
-      }
-      setCorrectionsByCase(parsed.correctionsByCase ?? {})
-      setPublicationByCase(parsed.publicationByCase ?? {})
-    } catch {
-      localStorage.removeItem(OFFICE_STORAGE_KEY)
-    }
-    }, 0)
-    return () => window.clearTimeout(timer)
-  }, [])
-
-  React.useEffect(() => {
-    localStorage.setItem(
-      OFFICE_STORAGE_KEY,
-      JSON.stringify({ correctionsByCase, publicationByCase })
-    )
-  }, [correctionsByCase, publicationByCase])
 
   const sourceCase = React.useMemo(
     () =>
@@ -137,12 +113,14 @@ export function FixtureProvider({ children }: { children: React.ReactNode }) {
     setCaseIdState(nextCaseId)
     setSelectedResult(null)
     setUploadError("")
+    setUploadNotice("")
   }
 
   async function loadFixture(file: File) {
     const thisRequest = ++requestId.current
     setIsLoading(true)
     setUploadError("")
+    setUploadNotice("")
     try {
       const nextFixture = await loadFixtureFile(file)
       if (thisRequest !== requestId.current) {
@@ -153,8 +131,8 @@ export function FixtureProvider({ children }: { children: React.ReactNode }) {
       setSelectedResult(null)
       setCorrectionsByCase({})
       setPublicationByCase({})
-      localStorage.removeItem(OFFICE_STORAGE_KEY)
       setFixtureRevision((value) => value + 1)
+      setUploadNotice(`${nextFixture.cases.length} case${nextFixture.cases.length === 1 ? "" : "s"} loaded. Selected ${nextFixture.cases[0].case_id}.`)
       return { ok: true as const }
     } catch (error) {
       const message =
@@ -171,11 +149,11 @@ export function FixtureProvider({ children }: { children: React.ReactNode }) {
     setFixture(bundledFixture)
     setCaseIdState(bundledFixture.cases[0].case_id)
     setUploadError("")
+    setUploadNotice("")
     setSelectedResult(null)
     setIsLoading(false)
     setCorrectionsByCase({})
     setPublicationByCase({})
-    localStorage.removeItem(OFFICE_STORAGE_KEY)
     setFixtureRevision((value) => value + 1)
   }
 
@@ -218,6 +196,7 @@ export function FixtureProvider({ children }: { children: React.ReactNode }) {
     checking,
     classes,
     uploadError,
+    uploadNotice,
     isLoading,
     selectedResult,
     sourceCase,
