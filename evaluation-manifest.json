@@ -10,26 +10,48 @@
   "sample_data": {
     "loads_published_fixture": true,
     "method": "Bundled organizer fixture plus in-browser JSON file upload using the published schema 2.2 shape",
-    "reset_instructions": "Select Reset in the header to restore the bundled 25-case fixture and PUB-01."
+    "reset_instructions": "Select Reset in the header to restore the bundled 25-case fixture and PUB-01.",
+    "valid_import_sample": "public/sample-p08-fixture.json",
+    "import_route": "Use Load JSON in the shared header on /dashboard, /results, or /checks."
   },
-  "problem_solving_method": "A pure TypeScript engine evaluates subject component passes, grade bands, optional bonus, compulsory-fail override, final GPA and checking flags. The Next.js interface derives the register, per-student audit trace and three non-exclusive checking queues from the same evaluated result objects. Boundary, overlap, upload and all-public-fixture behavior is automated-tested.",
+  "problem_solving_method": "A pure TypeScript engine evaluates subject component passes, grade bands, optional bonus, compulsory-fail override, final GPA, and checking flags. The Next.js interface derives the register, per-student audit trace, CSV exports, and three non-exclusive checking queues from the same evaluated result objects. Automated tests cover boundaries, overlap, uploads, exports, judge examples, and all 25 public cases.",
   "requirements": {
     "R1": {
       "status": "complete",
-      "evidence": "/dashboard metrics and charts; /results register; shared case selector and upload/reset controls; src/data/P08_school_results_public.json; src/data/fixture.ts"
+      "evidence": "Routes: /dashboard metrics, charts, and four Judge shortcuts; /results full register. Screenshot: docs/screenshots/dashboard-judge-evidence.png. Tests: official fixture compatibility and judge examples in src/domain/engine.test.ts and src/domain/evidence.test.ts. Sources: src/data/P08_school_results_public.json, public/sample-p08-fixture.json, src/data/fixture.ts, src/domain/evidence.ts, components/dashboard-view.tsx."
     },
     "R2": {
       "status": "complete",
-      "evidence": "/results sortable and searchable register; src/domain/engine.ts; src/domain/engine.test.ts"
+      "evidence": "Route: /results searchable, class-filtered, sortable, paginated register with Export register CSV and Trace controls. Screenshot: docs/screenshots/results-register-export.png. Tests: grade bands, subject evaluation, GPA evaluation, and CSV export in src/domain/engine.test.ts and src/domain/csv.test.ts. Sources: src/domain/engine.ts, src/domain/csv.ts, components/results-table.tsx."
     },
     "R3": {
       "status": "complete",
-      "evidence": "Select Trace from /results or /checks; components/student-trace.tsx shows every mark, grade point, decision rule, GPA formula, uncancelled GPA and compulsory-fail override"
+      "evidence": "Routes: open Trace from a /dashboard Judge shortcut, /results, or /checks. Screenshot: docs/screenshots/student-trace-hard-edge.png shows Imran Sultana with MAT 32/100, uncancelled GPA 4.67, and final 0.00/F. Tests: compulsory override in src/domain/engine.test.ts and published examples in src/domain/evidence.test.ts. Sources: components/student-trace.tsx, src/domain/engine.ts, src/domain/evidence.ts."
     },
     "R4": {
       "status": "complete",
-      "evidence": "/checks three tabbed tables; src/domain/engine.ts buildCheckingLists; overlap test in src/domain/engine.test.ts"
+      "evidence": "Route: /checks with Optional, Practical fail, and Absent tabs, reasons, Trace controls, and one CSV export per list. Screenshot: docs/screenshots/checking-lists-export.png. Tests: checking-list overlap in src/domain/engine.test.ts and checking-list CSV coverage in src/domain/csv.test.ts. Sources: components/checks-view.tsx, src/domain/engine.ts buildCheckingLists, src/domain/csv.ts."
     }
+  },
+  "verification": {
+    "commands": [
+      "bun run test",
+      "bun run typecheck",
+      "bun run lint",
+      "bun run build"
+    ],
+    "browser_routes": [
+      "/dashboard",
+      "/results",
+      "/checks",
+      "/sample-p08-fixture.json"
+    ],
+    "screenshots": [
+      "docs/screenshots/dashboard-judge-evidence.png",
+      "docs/screenshots/results-register-export.png",
+      "docs/screenshots/student-trace-hard-edge.png",
+      "docs/screenshots/checking-lists-export.png"
+    ]
   },
   "team_members": [
     {
@@ -51,11 +73,12 @@
     }
   ],
   "major_design_decisions": [
-    "Evaluate every rule in a pure domain module independent of React so the official edge cases are directly testable.",
+    "Evaluate every rule in a pure domain module independent of React so the official edge cases and CSV output are directly testable.",
     "Check theory and practical component passes before grade-band lookup, preventing a high total from masking a component failure.",
     "Preserve the uncancelled GPA and exact failing-subject decisions when the compulsory-fail override publishes 0.00/F.",
     "Derive all three non-exclusive teacher queues from the same evaluated result model used by the register and trace.",
-    "Bundle the organizer fixture and validate judge-supplied JSON locally so evaluation requires no secret or external service."
+    "Bundle the organizer fixture and a valid one-case import sample, then validate judge-supplied JSON locally so evaluation requires no secret or external service.",
+    "Expose four current-case hard-edge traces on /dashboard so judges can reach the required evidence without searching."
   ],
   "known_limitations": [
     "The evaluator accepts complete fixture JSON rather than supporting per-mark editing.",
@@ -65,7 +88,7 @@
     {
       "tool": "OpenAI Codex",
       "used_for": "Implementation assistance, test drafting, interface composition and documentation.",
-      "how_output_was_verified": "Checked against the official clarifications with 35 automated tests, all 25 public cases, TypeScript, ESLint, a production Next.js build and browser QA."
+      "how_output_was_verified": "Checked against the official clarifications with 40 automated tests, all 25 public cases, TypeScript, ESLint, a production Next.js build, and browser QA."
     },
     {
       "tool": "ChatGPT",

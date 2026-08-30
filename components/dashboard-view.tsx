@@ -264,6 +264,7 @@ export function DashboardView() {
                 <Bar
                   dataKey="count"
                   fill="var(--color-count)"
+                  isAnimationActive={false}
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>
@@ -300,12 +301,14 @@ export function DashboardView() {
                   dataKey="passed"
                   stackId="outcome"
                   fill="var(--color-passed)"
+                  isAnimationActive={false}
                   radius={[0, 0, 3, 3]}
                 />
                 <Bar
                   dataKey="failed"
                   stackId="outcome"
                   fill="var(--color-failed)"
+                  isAnimationActive={false}
                   radius={[3, 3, 0, 0]}
                 />
               </BarChart>

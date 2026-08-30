@@ -1,35 +1,37 @@
-# Third-Party Material and AI Disclosure
+# Third-party material and AI disclosure
 
-| Name | Version or source | Licence | Used for |
+## Software and assets
+
+| Name | Version or source | License | Use |
 | --- | --- | --- | --- |
-| Next.js | 16.3.3 | MIT | App Router application framework and production build |
-| React / React DOM | 19.2.8 | MIT | User interface runtime |
-| shadcn/ui | CLI 4.19.0, `b0` / base-nova preset | MIT | Generated, project-owned accessible UI component source and initial scaffold |
-| Base UI | 1.7.0 | MIT | Accessible component primitives used by shadcn/ui |
-| Tailwind CSS | 4.3.3 | MIT | Interface layout and theme utilities |
-| tw-animate-css | 1.4.0 | MIT | shadcn transition utilities |
+| Next.js | 16.3.3 | MIT | App Router framework and production build |
+| React and React DOM | 19.2.8 | MIT | UI runtime |
+| shadcn/ui | CLI 4.19.0, `b0` / base-nova preset | MIT | Generated, project-owned component source and initial scaffold |
+| Base UI | 1.7.0 | MIT | Accessible primitives used by shadcn/ui |
+| Tailwind CSS | 4.3.3 | MIT | Layout and theme utilities |
+| tw-animate-css | 1.4.0 | MIT | shadcn animation utilities |
 | Lucide React | 1.37.0 | ISC | Interface icons |
 | class-variance-authority | 0.7.1 | Apache-2.0 | Component variants |
 | clsx | 2.1.1 | MIT | Conditional class composition |
 | tailwind-merge | 3.6.0 | MIT | Tailwind class conflict resolution |
-| next-themes | 0.4.6 | MIT | Included by the shadcn preset scaffold; theme provider source remains available |
-| TanStack React Table | 8.21.3 | MIT | Sorting, pagination and row modeling for the result register |
-| Recharts | 3.8.0 | MIT | Accessible grade and class outcome charts through shadcn Chart |
-| beUI file-upload block | `@beui/file-upload`, beui.dev registry | MIT | Accessible single-file dropzone, adapted for immediate in-browser P08 JSON parsing |
-| Motion | 13.1.1 | MIT | Reduced-motion-aware file selection feedback used by the beUI block |
-| Public Sans | Google Fonts via `next/font` | SIL Open Font License 1.1 | Body and data typography |
-| Bricolage Grotesque | Google Fonts via `next/font` | SIL Open Font License 1.1 | Display typography |
-| Vitest | 4.1.11 | MIT | Automated rule and fixture tests |
+| next-themes | 0.4.6 | MIT | Light and dark theme state |
+| TanStack React Table | 8.21.3 | MIT | Result-register sorting, pagination, and row models |
+| Recharts | 3.8.0 | MIT | Grade and class charts through shadcn Chart |
+| beUI file-upload block | `@beui/file-upload`, beui.dev registry | MIT | Single-file drop zone adapted for immediate local JSON parsing |
+| Motion | 13.1.1 | MIT | Reduced-motion-aware feedback in the beUI upload block |
+| Public Sans | Google Fonts through `next/font` | SIL Open Font License 1.1 | Body and data type |
+| Bricolage Grotesque | Google Fonts through `next/font` | SIL Open Font License 1.1 | Display type |
+| Vitest | 4.1.11 | MIT | Rule, fixture, evidence, and CSV tests |
 | TypeScript | 5.9.3 | Apache-2.0 | Static typing and type verification |
-| LofiStack P08 public fixture | Organizer participant pack, schema 2.2 | Organizer-supplied event material | The 25 published judge-format cases in `src/data/P08_school_results_public.json` |
-| Result Office brand mark | AI-assisted original asset generated during the event | Participant-owned generated asset | Sidebar application mark and Next.js favicon (`public/brand-mark.png`, `app/icon.png`) |
+| LofiStack P08 public fixture | Organizer participant pack, schema 2.2 | Organizer-supplied event material | The 25 published cases in `src/data/P08_school_results_public.json` and the one-case import sample in `public/sample-p08-fixture.json` |
+| Result Office brand mark | AI-assisted original asset generated during the event | Participant-owned generated asset | Sidebar mark and favicon at `public/brand-mark.png` and `app/icon.png` |
 
-No external UI template, stock image, illustration, commercial icon pack, or undeclared asset was used. The result-office composition, copy, theme, and application code were created during the event window.
+The project uses no external UI template, stock image, illustration, commercial icon pack, or undeclared asset. The application code, result-office layout, theme, and copy were created during the event window.
 
 ## AI tools
 
-OpenAI Codex, ChatGPT, and OpenCode were used for planning, implementation assistance, test drafting, interface composition, code review, documentation, and generation of the original brand mark. Outputs were checked against the official P08 clarifications, a 35-test automated suite, TypeScript, ESLint, a production build, and browser QA. Touhidul Alam Seyam is the sole implementation owner.
+OpenAI Codex, ChatGPT, and OpenCode assisted with planning, implementation, test drafting, interface work, code review, documentation, and the original brand mark. Touhidul Alam Seyam checked their output against the P08 clarifications and verified the repository with automated tests, TypeScript, ESLint, a production build, and browser QA. He is the sole implementation owner.
 
-## Original-work statement
+## Original work statement
 
-Everything not declared in this file or [`EVENT.md`](EVENT.md) was created by the registered participant during the event window.
+Everything not declared here or in [`EVENT.md`](EVENT.md) was created by the registered participant during the event window.

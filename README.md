@@ -1,74 +1,136 @@
-# Result Register
+# Result Office
 
-Solution for **LofiStack Hackathon 2026 — P08: School Result Processing and GPA Engine**.
+Result Office is the LofiStack Hackathon 2026 submission for P08, School Result Processing and GPA Engine. It processes the organizer fixture in the browser and keeps the calculation evidence beside every published result.
 
-## Project information
+## Project record
 
-- **Team ID:** `LSH26-T031`
-- **Problem:** `P08 — School Result Processing and GPA Engine`
-- **Repository:** <https://github.com/Seyamalam/lsh26-t031-p08>
-- **Live application:** <https://lsh26-t031-p08.vercel.app>
-- **Event start code:** `LSH26-8490-C900`
+| Field | Value |
+| --- | --- |
+| Team | `LSH26-T031` |
+| Problem | `P08` |
+| Repository | <https://github.com/Seyamalam/lsh26-t031-p08> |
+| Live application | <https://lsh26-t031-p08.vercel.app> |
+| Event start code | `LSH26-8490-C900` |
 
-> Judges should evaluate only the exact 40-character commit SHA entered in the Final Submission Form.
+Judges should evaluate the exact 40-character commit SHA entered in the final submission form.
 
-## Solution summary
+## Quick judge path
 
-Result Register turns a raw school marks fixture into a publication-ready register with a trace for every decision. It calculates subject grade points and final GPA, preserves the working average when a compulsory failure forces `0.00 / F`, and produces three independent teacher-checking queues for optional-subject cases, practical failures, and absences.
+1. Open `/dashboard` with `PUB-01` selected.
+2. Use one of the four Judge shortcuts to open the compulsory fail, practical fail, optional rule, or absent trace.
+3. Open `/results` to search, sort, filter, paginate, inspect a trace, or export the full register as CSV.
+4. Open `/checks` to inspect and export the Optional, Practical fail, and Absent lists separately.
+5. Use the case selector to run another published case. Load JSON accepts a complete P08 fixture, and Reset restores the bundled fixture.
 
-## Requirements
+[`DEMO-60S.md`](DEMO-60S.md) gives a timed walkthrough.
 
-| Requirement | Status | Where to verify |
-| --- | --- | --- |
-| R1 — 60+ students, two classes, six compulsory and one optional subject | Complete | Dashboard, Results, case selector, and `src/data/P08_school_results_public.json` |
-| R2 — Subject grade points, final GPA, and letter grade | Complete | Results and `src/domain/engine.ts` |
-| R3 — Per-student rule trace | Complete | Select any student; the trace shows raw marks, pass checks, band decision, grade point, formula, uncancelled average, and fail override |
-| R4 — Three checking lists | Complete | Checks; each row shows the triggering subject/reason and opens the student trace |
+## Requirement proof
 
-## Judge walkthrough
+| Required item | Route and interaction | Screenshot | Automated proof | Main source |
+| --- | --- | --- | --- | --- |
+| R1. At least 60 students in two classes, with the required subjects and hard edges | `/dashboard`, `/results`, case selector, and Judge shortcuts | [`dashboard-judge-evidence.png`](docs/screenshots/dashboard-judge-evidence.png) | `official fixture compatibility` and `judge examples` tests | `src/data/P08_school_results_public.json`, `src/data/fixture.ts`, `src/domain/evidence.ts` |
+| R2. Subject points, final GPA, and letter grade | `/results`, Trace, and Export register CSV | [`results-register-export.png`](docs/screenshots/results-register-export.png) | Grade-band, subject, GPA, and CSV tests | `src/domain/engine.ts`, `src/domain/csv.ts`, `components/results-table.tsx` |
+| R3. Per-student calculation trace and visible fail cause | Judge shortcut or Trace from `/results` and `/checks` | [`student-trace-hard-edge.png`](docs/screenshots/student-trace-hard-edge.png) | Compulsory override and hard-edge tests | `components/student-trace.tsx`, `src/domain/engine.ts` |
+| R4. Optional, practical fail, and absent checking lists | `/checks`, three tabs, Trace, and one CSV export per list | [`checking-lists-export.png`](docs/screenshots/checking-lists-export.png) | Checking-list overlap and CSV tests | `components/checks-view.tsx`, `src/domain/engine.ts`, `src/domain/csv.ts` |
 
-1. Open the application. `/dashboard` loads `PUB-01` with 80 students across Classes 9 and 10, result metrics, grade distribution, and class outcomes.
-2. Open **Results**. Search by name or ID, filter by class, sort any operational column, paginate, and select **Trace** to inspect all seven subject decisions.
-3. Trace Imran Sultana. Mathematics is 32, so the trace retains the `4.67` uncancelled GPA and shows why the compulsory-fail rule publishes `0.00 / F`.
-4. Open **Checks**. Switch among Optional, Practical fail, and Absent. Select a row to open the same complete student trace.
-5. Use **Working case** to try any of the 25 published cases.
-6. Select **Load JSON** and upload `src/data/P08_school_results_public.json`, or a judge-supplied P08 fixture in the same schema. A malformed fixture produces a readable validation message.
-7. Select **Reset** to restore the bundled published fixture and `PUB-01`. Use the visible theme control for light/dark mode.
+## Screenshots
 
-For a timed walkthrough, use [`DEMO-60S.md`](DEMO-60S.md).
+### Dashboard and judge shortcuts
 
-## Rules implemented
+![Dashboard with case metrics, charts, and four hard-edge judge shortcuts](docs/screenshots/dashboard-judge-evidence.png)
 
-- Whole marks use the published boundaries: `<33 = 0`, `33–39 = 1`, `40–49 = 2`, `50–59 = 3`, `60–69 = 3.5`, `70–79 = 4`, and `80–100 = 5`.
-- A practical subject requires theory `>=25/75` and practical `>=8/25`; failing either component forces subject GP `0`, regardless of total.
-- `AB` produces subject GP `0`. A compulsory `AB` fails the overall result; optional `AB` contributes no bonus but does not itself fail the student.
-- `optional bonus = max(0, optional GP - 2)`.
-- `uncancelled GPA = min(5, (six compulsory GPs + optional bonus) / 6)`.
-- Any compulsory failure publishes `0.00 / F` while the uncancelled GPA remains visible.
-- Final letter grades follow R-10 exactly.
-- Checking queues follow R-29 and deliberately overlap.
+### Result register and CSV export
 
-## Published fixture and uploads
+![Searchable result register with the CSV export control](docs/screenshots/results-register-export.png)
 
-The complete organizer-supplied schema 2.2 fixture is bundled at [`src/data/P08_school_results_public.json`](src/data/P08_school_results_public.json). It contains 25 cases; each has at least 60 students and two classes. Uploaded data runs through the same parser and result engine as bundled data.
+### Compulsory fail trace
 
-The upload validator checks:
+![Student trace showing a strong uncancelled GPA and compulsory fail override](docs/screenshots/student-trace-hard-edge.png)
 
-- a P08 fixture with a non-empty `cases` array;
-- exactly six compulsory codes;
-- at least 60 students and two classes per case;
-- six compulsory marks plus one distinct optional mark per student;
-- whole marks from 0–100, or `AB`;
-- practical subjects with theory 0–75 and practical 0–25, or `AB`.
+### Checking lists
+
+![Teacher checking list with reasons, trace links, and CSV export](docs/screenshots/checking-lists-export.png)
+
+## Calculation flow
+
+```mermaid
+flowchart LR
+  A[Bundled or uploaded P08 JSON] --> B[parseFixture]
+  B --> C[evaluateCase]
+  C --> D[evaluateStudent]
+  D --> E[evaluateSubject]
+  E --> F[Subject grade points]
+  F --> G[Optional bonus and uncancelled GPA]
+  G --> H{Compulsory failure?}
+  H -->|Yes| I[Final 0.00 and F]
+  H -->|No| J[Final GPA and letter grade]
+  C --> K[buildCheckingLists]
+  I --> L[Dashboard, register, and trace]
+  J --> L
+  K --> M[Optional, practical, and absent lists]
+  L --> N[CSV exports]
+  M --> N
+```
+
+The UI does not recalculate results. The register, charts, traces, checking lists, and exports all consume the same `StudentResult` objects from the domain engine.
+
+## Rules in the engine
+
+- Whole marks use these boundaries: below 33 is 0, 33-39 is 1, 40-49 is 2, 50-59 is 3, 60-69 is 3.5, 70-79 is 4, and 80-100 is 5.
+- A practical subject requires theory `>=25/75` and practical `>=8/25`. Failing either component forces subject GP `0`, even when the total would pass.
+- `AB` produces subject GP `0`. A compulsory `AB` fails the overall result. An optional `AB` gives no bonus but does not itself fail the student.
+- Optional bonus is `max(0, optional GP - 2)`.
+- Uncancelled GPA is `min(5, (six compulsory GPs + optional bonus) / 6)`.
+- Any compulsory failure publishes `0.00 / F`. The trace still shows the uncancelled GPA and the subject that caused the override.
+- Final letters follow R-10. The three R-29 checking lists can overlap.
+
+## Importing a fixture
+
+The organizer fixture is bundled at [`src/data/P08_school_results_public.json`](src/data/P08_school_results_public.json). A smaller valid file containing `PUB-01` is checked in at [`public/sample-p08-fixture.json`](public/sample-p08-fixture.json). Download it from the running app at `/sample-p08-fixture.json`, then use Load JSON in the header.
+
+An import must have this top-level shape:
+
+```json
+{
+  "schema_version": "2.2",
+  "problem_id": "P08",
+  "cases": [
+    {
+      "case_id": "PUB-01",
+      "subjects": [
+        { "code": "BAN", "name": "Bangla", "practical": false },
+        { "code": "PHY", "name": "Physics", "practical": true }
+      ],
+      "compulsory": ["BAN", "ENG", "MAT", "PHY", "CHE", "BIO"],
+      "students": [
+        {
+          "id": "S001",
+          "name": "Arif Hossain",
+          "class": "Class 9",
+          "optional": "HMT",
+          "marks": {
+            "BAN": 55,
+            "ENG": 61,
+            "MAT": 70,
+            "PHY": { "theory": 60, "practical": 20 },
+            "CHE": { "theory": 40, "practical": 7 },
+            "BIO": "AB",
+            "HMT": { "theory": 50, "practical": 15 }
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+The excerpt shows the mark formats. A valid case must include at least 60 students in two classes, exactly six compulsory subject codes, and one distinct optional subject per student. Use the checked-in sample when testing an import.
+
+The validator also checks mark ranges, practical mark objects, subject codes, and the seven-mark requirement. A rejected file produces a readable error without replacing the current data.
 
 ## Run locally
 
-### Requirements
-
-- [Bun](https://bun.sh/) 1.2 or newer
-- A current browser; no database, private key, or paid service is required
-
-### Setup
+You need Bun 1.2 or newer and a current browser. The project has no database, private key, or paid service.
 
 ```bash
 git clone https://github.com/Seyamalam/lsh26-t031-p08.git
@@ -79,7 +141,7 @@ bun run dev
 
 Open <http://localhost:3000>.
 
-### Verification
+## Verify the build
 
 ```bash
 bun run test
@@ -88,53 +150,42 @@ bun run lint
 bun run build
 ```
 
-The test suite covers all grade boundaries, practical component overrides, absence behavior, optional GP/bonus cases, the GPA cap, compulsory-fail override, overlapping checking queues, upload parsing, and all 25 published fixtures.
+The tests cover grade boundaries, practical component overrides, absence handling, optional bonus boundaries, GPA capping, compulsory failure, list overlap, fixture parsing, all 25 published cases, judge examples, CSV escaping, CSV row coverage, and filenames.
 
-## Problem-solving approach
+## Design and implementation choices
 
-The project treats every visible number as an output of a pure domain engine. Subject evaluation happens before student GPA evaluation, and checking queues are derived from the same immutable `StudentResult` objects used by the interface. This keeps the UI from reimplementing or quietly drifting from the official rules.
+- `src/domain/engine.ts` is independent of React and browser APIs.
+- Theory and practical checks run before grade-band lookup, so a high combined total cannot hide a failed component.
+- The uncancelled GPA remains in the result model after a compulsory failure.
+- Checking lists are non-exclusive and come from the same evaluated result used by the trace.
+- Uploaded fixtures stay in browser memory. The app needs no network request after it loads.
+- Next.js App Router pages separate summary, register, and checking work. The shared trace sheet preserves the current page and filters.
+- shadcn and Base UI primitives provide keyboard behavior and focus management. The app also has semantic tables, chart accessibility layers, a skip link, visible focus, responsive navigation, dark mode, and reduced-motion handling.
 
-The interface is a compact school result-office workspace. Separate App Router pages keep the summary, full register, and manual checking queues focused. The full trace stays in a shared side sheet so judges can inspect a student from either operational table without losing their place.
+## Technology and licenses
 
-## Major design decisions
+The application uses Next.js 16.3.3, React 19.2.8, TypeScript, shadcn/ui, Base UI, Tailwind CSS 4, TanStack React Table, Recharts, Vitest, Lucide, next-themes, and the beUI file-upload block. Deployment is on Vercel.
 
-- **Pure rule engine:** `src/domain/engine.ts` has no React or browser dependency, so every formula and edge is unit-testable.
-- **Component pass checks precede grade bands:** a high total can never hide a failed theory or practical component.
-- **One result model:** roster, trace, summaries, and checking queues all consume the same evaluated object.
-- **Non-exclusive checking queues:** the implementation never deduplicates a student out of another applicable list.
-- **Local-first judge data:** the official fixture is bundled and judge-supplied files are validated in the browser; no network or secret is required.
-- **Accessible workspace:** shadcn/Base UI primitives provide keyboard behavior and focus management; the design includes semantic tables and charts, labels, a skip link, visible focus, dark mode, responsive navigation, and reduced-motion handling.
-
-## Technology used
-
-- **Application:** Next.js 16.3.3 App Router, React 19.2.8, TypeScript
-- **Interface:** shadcn/ui (`b0` / base-nova preset), Base UI, Tailwind CSS 4, Lucide icons
-- **Fixture input:** beUI file-upload block with Motion, adapted for immediate local JSON validation
-- **Data views:** TanStack React Table and Recharts through shadcn Chart
-- **Testing:** Vitest, TypeScript compiler, ESLint, production Next.js build
-- **Data:** organizer-supplied JSON fixture; no backend or database
-- **Deployment:** Vercel
-
-See [`LICENSES.md`](LICENSES.md) for third-party materials.
+[`LICENSES.md`](LICENSES.md) records versions, licenses, assets, and disclosures.
 
 ## Team contribution
 
-| Registered member | GitHub username | Major contribution | Evidence |
-| --- | --- | --- | --- |
-| Touhidul Alam Seyam | `Seyamalam` | Sole implementation owner: domain modeling, fixture integration, result engine, tests, UI/UX, accessibility, documentation, and verification | `src/domain/`, `src/data/`, `components/`, `app/`, repository history |
-| Pratik Dev | — | Unable to participate in the build due to a severe health crisis | Team status declaration |
+| Registered member | GitHub username | Contribution |
+| --- | --- | --- |
+| Touhidul Alam Seyam | `Seyamalam` | Sole implementation owner for domain modeling, fixture integration, engine, tests, interface, accessibility, documentation, and verification |
+| Pratik Dev | Not provided | Unable to participate in the build due to a severe health crisis |
 
-## AI usage
+## AI disclosure
 
-OpenAI Codex, ChatGPT, and OpenCode were used as assistants for planning, implementation, test drafting, interface composition, code review, documentation, and generating the app brand mark. Their outputs were reviewed through the official clarification rules, automated rule tests, TypeScript, ESLint, a production build, and browser interaction. Touhidul Alam Seyam remains the sole implementation owner and is responsible for the submitted work.
+OpenAI Codex, ChatGPT, and OpenCode assisted with planning, implementation, test drafting, interface work, code review, documentation, and the app brand mark. Touhidul Alam Seyam reviewed their output against the published rules and verified it with automated tests, TypeScript, ESLint, a production build, and browser QA. He remains the sole implementation owner.
 
 ## Known limitations
 
-- The application is intentionally a read-only evaluator; it accepts complete fixture JSON rather than offering per-mark editing.
-- Uploaded data, selected case, filters, and theme are browser-local state; fixture state resets on page refresh.
+- The app accepts complete fixture JSON and does not provide per-mark editing.
+- Uploaded fixture data, the selected case, and table filters reset after a browser refresh.
 
 ## Repository records
 
-- [`EVENT.md`](EVENT.md) — event start code and pre-event-material declaration
-- [`evaluation-manifest.json`](evaluation-manifest.json) — structured judging evidence
-- [`LICENSES.md`](LICENSES.md) — frameworks, libraries, fonts, icons, fixture, and AI disclosure
+- [`EVENT.md`](EVENT.md) records the event start code and pre-event material declaration.
+- [`evaluation-manifest.json`](evaluation-manifest.json) maps requirements to evidence.
+- [`LICENSES.md`](LICENSES.md) lists third-party material and AI use.
