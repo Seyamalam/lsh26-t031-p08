@@ -597,7 +597,10 @@ function TraceSheet({ result, onOpenChange }: { result: StudentResult | null; on
   return (
     <Sheet open={Boolean(result)} onOpenChange={onOpenChange}>
       {result && (
-        <SheetContent side="right" className="w-[96vw] gap-0 overflow-y-auto p-0 sm:max-w-5xl">
+        <SheetContent
+          side="right"
+          className="gap-0 overflow-y-auto p-0 data-[side=right]:w-[96vw] data-[side=right]:sm:max-w-5xl"
+        >
           <SheetHeader className="border-b-4 border-ring bg-primary p-6 text-primary-foreground">
             <Eyebrow>Student calculation trace · {result.student.id}</Eyebrow>
             <SheetTitle className="font-heading text-3xl text-primary-foreground">{result.student.name}</SheetTitle>
